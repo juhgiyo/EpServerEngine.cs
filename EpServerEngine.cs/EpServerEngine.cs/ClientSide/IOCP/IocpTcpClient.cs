@@ -12,7 +12,7 @@ using System.Threading;
 using System.Diagnostics;
 using EpLibrary.cs;
 
-namespace IocpServer
+namespace EpServerEngine.cs
 {
     public class IocpTcpClient : ThreadEx, ClientInterface
     {

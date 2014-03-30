@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-namespace IocpServer
+namespace EpServerEngine.cs
 {
     public class PacketSerializer<PacketStruct> where PacketStruct : class,ISerializable
     {
