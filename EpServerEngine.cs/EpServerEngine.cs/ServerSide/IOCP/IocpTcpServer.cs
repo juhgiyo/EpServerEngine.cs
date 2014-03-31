@@ -12,7 +12,7 @@ using EpLibrary.cs;
 
 namespace EpServerEngine.cs
 {
-    public class IocpTcpServer:ThreadEx, ServerInterface
+    public sealed class IocpTcpServer:ThreadEx, ServerInterface
     {
         private String m_port=ServerConf.DEFAULT_PORT;
         private TcpListener m_listener=null;

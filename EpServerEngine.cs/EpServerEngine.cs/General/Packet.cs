@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace EpServerEngine.cs
 {
-    public class Packet
+    public sealed class Packet
     {
 
         /// packet

@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace EpServerEngine.cs
 {
-    public class ClientOps{
+    public sealed class ClientOps{
 
 		public ClientCallbackInterface callBackObj;
 

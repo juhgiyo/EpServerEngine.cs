@@ -11,7 +11,7 @@ using System.IO;
 
 namespace EpServerEngine.cs
 {
-    public class PacketSerializer<PacketStruct> where PacketStruct : class,ISerializable
+    public sealed class PacketSerializer<PacketStruct> where PacketStruct : class,ISerializable
     {
         private PacketStruct m_packet=null;
         private MemoryStream m_stream = null;

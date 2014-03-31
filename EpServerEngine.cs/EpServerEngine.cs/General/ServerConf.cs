@@ -59,7 +59,5 @@ namespace EpServerEngine.cs
     {
 	    public const String DEFAULT_HOSTNAME="localhost";
         public const String DEFAULT_PORT = "80808";
-        public const uint CONNECTION_LIMIT_INFINITE = 0;
-        public const uint PROCESSOR_LIMIT_INFINITE = 0;
     }
 }

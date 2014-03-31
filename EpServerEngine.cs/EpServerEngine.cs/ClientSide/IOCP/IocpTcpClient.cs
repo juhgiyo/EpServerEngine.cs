@@ -14,7 +14,7 @@ using EpLibrary.cs;
 
 namespace EpServerEngine.cs
 {
-    public class IocpTcpClient : ThreadEx, ClientInterface
+    public sealed class IocpTcpClient : ThreadEx, ClientInterface
     {
 
         private TcpClient m_client=new TcpClient();

@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace EpServerEngine.cs
 {
-    public class ServerOps
+    public sealed class ServerOps
     {
 
         public ServerCallbackInterface callBackObj;
@@ -90,7 +90,7 @@ namespace EpServerEngine.cs
         REMOTE
     }
 
-    public class IPInfo
+    public sealed class IPInfo
     {
 
         String m_ipAddress;

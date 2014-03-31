@@ -12,7 +12,7 @@ using EpLibrary.cs;
 
 namespace EpServerEngine.cs
 {
-    public class IocpTcpSocket:ThreadEx,SocketInterface
+    public sealed class IocpTcpSocket:ThreadEx,SocketInterface
     {
         private TcpClient m_client=null;
         private ServerInterface m_server = null;
