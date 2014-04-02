@@ -91,6 +91,17 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// Default  constructor
+        /// </summary>
+        /// <param name="rawData">serialized packet</param>
+        /// <param name="offset">rawData offset</param>
+        /// <param name="count">rawData byte size</param>
+        public PacketSerializer(byte[] rawData,int offset,int count)
+        {
+            m_stream = new MemoryStream(rawData, offset, count);
+        }
+
+        /// <summary>
         /// Default copy constructor
         /// </summary>
         /// <param name="orig">the object to copy from</param>
@@ -149,6 +160,18 @@ namespace EpServerEngine.cs
         public void SetPacket(byte[] rawData)
         {
             m_stream = new MemoryStream(rawData);
+
+        }
+
+        /// <summary>
+        /// Set serialize packet
+        /// </summary>
+        /// <param name="rawData">serialize packet</param>
+        /// <param name="offset">rawData offset</param>
+        /// <param name="count">rawData byte size</param>
+        public void SetPacket(byte[] rawData, int offset,int count)
+        {
+            m_stream = new MemoryStream(rawData, offset, count);
 
         }
 
