@@ -44,20 +44,31 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Formatters;
 using System.IO;
+using System.Reflection;
 
 namespace EpServerEngine.cs
 {
+    
     /// <summary>
     /// Packet Serializer
     /// </summary>
     /// <typeparam name="PacketStruct">packet class type</typeparam>
     public sealed class PacketSerializer<PacketStruct> where PacketStruct : class,ISerializable
     {
-        /// <summary>
-        /// packet class object
-        /// </summary>
-        private PacketStruct m_packet=null;
+        sealed class AllowAllAssemblyVersionDeserializationBinder : SerializationBinder
+        {
+            public override Type BindToType(string assemblyName, string typeName)
+            {
+                Type typeToDeserialize = null;
+                String currentAssembly = Assembly.GetAssembly(typeof(PacketStruct)).FullName;
+                assemblyName = currentAssembly;
+                typeToDeserialize = Type.GetType(String.Format("{0}, {1}", typeof(PacketStruct).FullName, assemblyName));
+                return typeToDeserialize;
+            }
+        }
+
         /// <summary>
         /// stream
         /// </summary>
@@ -65,7 +76,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// formatter
         /// </summary>
-        private IFormatter m_formatter = new BinaryFormatter();
+        private BinaryFormatter m_formatter = new BinaryFormatter();
         
         /// <summary>
         /// lock
@@ -78,7 +89,10 @@ namespace EpServerEngine.cs
         /// <param name="packet">packet class object</param>
         public PacketSerializer(PacketStruct packet=null)
         {
-             m_formatter.Serialize(m_stream,m_packet);      
+            m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            
+            m_stream = new MemoryStream();
+            m_formatter.Serialize(m_stream, packet);      
         }
 
         /// <summary>
@@ -87,6 +101,8 @@ namespace EpServerEngine.cs
         /// <param name="rawData">serialized packet</param>
         public PacketSerializer(byte[] rawData)
         {
+            m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream = new MemoryStream(rawData);
         }
 
@@ -98,6 +114,8 @@ namespace EpServerEngine.cs
         /// <param name="count">rawData byte size</param>
         public PacketSerializer(byte[] rawData,int offset,int count)
         {
+            m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream = new MemoryStream(rawData, offset, count);
         }
 
@@ -107,6 +125,8 @@ namespace EpServerEngine.cs
         /// <param name="orig">the object to copy from</param>
         public PacketSerializer(PacketSerializer<PacketStruct> orig)
         {
+            m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream=orig.m_stream;
         }
 
@@ -122,6 +142,7 @@ namespace EpServerEngine.cs
         /// <returns>packet class object</returns>
         public PacketStruct GetPacket()
         {
+            m_stream.Seek(0, SeekOrigin.Begin);
             return (PacketStruct)m_formatter.Deserialize(m_stream);
         }
 
@@ -150,7 +171,8 @@ namespace EpServerEngine.cs
         /// <param name="packet">packet class object</param>
         public void SetPacket(PacketStruct packet)
         {
-            m_formatter.Serialize(m_stream,m_packet);            
+            m_stream = new MemoryStream();
+            m_formatter.Serialize(m_stream, packet);            
         }
 
         /// <summary>

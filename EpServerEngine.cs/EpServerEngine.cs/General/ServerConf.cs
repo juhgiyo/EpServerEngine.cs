@@ -124,6 +124,6 @@ namespace EpServerEngine.cs
         /// <summary>
         /// Default port (80808)
         /// </summary>
-        public const String DEFAULT_PORT = "80808";
+        public const String DEFAULT_PORT = "8080";
     }
 }

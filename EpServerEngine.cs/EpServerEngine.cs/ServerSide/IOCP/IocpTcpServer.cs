@@ -180,7 +180,7 @@ namespace EpServerEngine.cs
                 m_callBackObj.OnServerStarted(this, status);
                 return;
             }
-            catch
+            catch (Exception e)
             {
                 if (m_listener != null)
                     m_listener.Stop();

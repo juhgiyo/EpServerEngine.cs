@@ -118,10 +118,6 @@ namespace EpServerEngine.cs
         /// receive message size packet
         /// </summary>
         private Packet m_recvSizePacket = new Packet(null, 4);
-        /// <summary>
-        /// send message size packet
-        /// </summary>
-        private Packet m_sendSizePacket = new Packet(null, 4, false);
 
         /// <summary>
         /// Default constructor
@@ -349,11 +345,12 @@ namespace EpServerEngine.cs
 
             lock (m_sendLock)
             {
-                PacketTransporter transport = new PacketTransporter(PacketType.SIZE, m_sendSizePacket, 0, 4, this, packet);
-                m_sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), 4);
+                Packet sendSizePacket = new Packet(null, 4, false);
+                PacketTransporter transport = new PacketTransporter(PacketType.SIZE, sendSizePacket, 0, 4, this, packet);
+                sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), 4);
                 if (m_sendEvent.TryLock())
                 {
-                    try { m_client.Client.BeginSend(m_sendSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
+                    try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
                     catch { Disconnect(); return; }
                 }
                 else
@@ -484,7 +481,7 @@ namespace EpServerEngine.cs
                 else
                 {
                     PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, 4, transport.m_iocpTcpClient);
-                    try{socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);}
+                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
                     catch {  transport.m_iocpTcpClient.Disconnect(); return;}
                     transport.m_callBackObj.OnReceived(transport.m_iocpTcpClient, transport.m_packet);
                 }

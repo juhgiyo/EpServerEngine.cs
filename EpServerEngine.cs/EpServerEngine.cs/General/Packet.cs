@@ -83,7 +83,7 @@ namespace EpServerEngine.cs
                 if (byteSize > 0)
                 {
                     m_packet = new byte[byteSize];
-                    if (m_packet != null)
+                    if (packet != null)
                     {
                         Array.Copy(packet, m_packet, byteSize);
                     }
@@ -91,6 +91,7 @@ namespace EpServerEngine.cs
                     {
                         Array.Clear(m_packet, 0, m_packet.Count());
                     }
+                    m_packetSize = byteSize;
                 }
             }
             else

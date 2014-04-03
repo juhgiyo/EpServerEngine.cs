@@ -358,7 +358,7 @@ namespace EpServerEngine.cs
                 else
                 {
                     PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, 4, transport.m_iocpTcpClient);
-                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onReceived), transport); }
+                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onReceived), sizeTransport); }
                     catch {  transport.m_iocpTcpClient.Disconnect(); return;}
                     transport.m_callBackObj.OnReceived(transport.m_iocpTcpClient, transport.m_packet);
                 }
