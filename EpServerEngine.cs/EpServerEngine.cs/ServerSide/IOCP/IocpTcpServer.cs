@@ -180,8 +180,9 @@ namespace EpServerEngine.cs
                 m_callBackObj.OnServerStarted(this, status);
                 return;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 if (m_listener != null)
                     m_listener.Stop();
                 m_listener = null;
@@ -198,11 +199,23 @@ namespace EpServerEngine.cs
         private static void onAccept(IAsyncResult result)
         {
             IocpTcpServer server = result.AsyncState as IocpTcpServer;
-            TcpClient client = server.m_listener.EndAcceptTcpClient(result);
+            TcpClient client=null;
+            try { client = server.m_listener.EndAcceptTcpClient(result); }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                if (client != null)
+                    client.Close();
+                server.StopServer();
+                return; 
+            }
             
             try { server.m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), server); }
-            catch {
-                client.Close();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace); 
+                if (client != null)
+                    client.Close();
                 server.StopServer(); 
                 return; 
             }
@@ -276,9 +289,9 @@ namespace EpServerEngine.cs
         {
             lock (m_listLock)
             {
-                foreach (IocpTcpSocket socket in m_socketList)
+                for (int trav = m_socketList.Count - 1; trav >= 0; trav--)
                 {
-                    socket.Disconnect();
+                    m_socketList[trav].Disconnect();
                 }
                 m_socketList.Clear();
             }

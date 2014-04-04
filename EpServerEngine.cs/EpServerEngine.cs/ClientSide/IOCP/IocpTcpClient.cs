@@ -248,8 +248,9 @@ namespace EpServerEngine.cs
                     m_callBackObj.OnConnected(this, status);
                 return;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 if (m_callBackObj != null)
                     m_callBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
                 return;
@@ -283,15 +284,19 @@ namespace EpServerEngine.cs
         private static void onConnected(IAsyncResult result)
         {
             IocpTcpClient tcpclient = result.AsyncState as IocpTcpClient;
-            if (tcpclient.m_client.Client != null)
+     
+            try { tcpclient.m_client.Client.EndConnect(result); }
+            catch (Exception ex)
             {
-                tcpclient.m_client.Client.EndConnect(result);
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 tcpclient.m_timeOutEvent.SetEvent();
-                if (tcpclient.m_callBackObj != null) 
-                    tcpclient.m_callBackObj.OnConnected(tcpclient, ConnectStatus.SUCCESS);
                 return;
             }
             tcpclient.m_timeOutEvent.SetEvent();
+            if (tcpclient.m_callBackObj != null) 
+                tcpclient.m_callBackObj.OnConnected(tcpclient, ConnectStatus.SUCCESS);
+            return;
+          
         }
 
         /// <summary>
@@ -320,7 +325,15 @@ namespace EpServerEngine.cs
         /// <returns>true if connection is alive, otherwise false</returns>
         public bool IsConnectionAlive()
         {
-            return m_client.Connected;
+            try
+            {
+                return m_client.Connected;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                return false;
+            }
         }
 
         /// <summary>
@@ -351,7 +364,14 @@ namespace EpServerEngine.cs
                 if (m_sendEvent.TryLock())
                 {
                     try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
-                    catch { Disconnect(); return; }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                        if (m_callBackObj != null)
+                            m_callBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR);
+                        Disconnect(); 
+                        return; 
+                    }
                 }
                 else
                 {
@@ -440,7 +460,11 @@ namespace EpServerEngine.cs
         {
             PacketTransporter transport = new PacketTransporter(PacketType.SIZE,m_recvSizePacket, 0, 4, this);
             try { m_client.Client.BeginReceive(m_recvSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport); }
-            catch { Disconnect(); return; }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                Disconnect(); return;
+            }
             
         }
 
@@ -455,7 +479,11 @@ namespace EpServerEngine.cs
             
             int readSize=0;
             try { readSize = socket.EndReceive(result); }
-            catch {  transport.m_iocpTcpClient.Disconnect();  return;}
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                transport.m_iocpTcpClient.Disconnect(); return;
+            }
             if (readSize == 0)
             {
                 transport.m_iocpTcpClient.Disconnect();
@@ -466,7 +494,11 @@ namespace EpServerEngine.cs
                 transport.m_offset = transport.m_offset + readSize;
                 transport.m_size = transport.m_size - readSize;
                 try{socket.BeginReceive(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);}
-                catch { transport.m_iocpTcpClient.Disconnect(); return; }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                    transport.m_iocpTcpClient.Disconnect(); return;
+                }
             }
             else
             {
@@ -476,13 +508,21 @@ namespace EpServerEngine.cs
                     Packet recvPacket = new Packet(null, shouldReceive);
                     PacketTransporter dataTransport = new PacketTransporter(PacketType.DATA, recvPacket, 0, shouldReceive, transport.m_iocpTcpClient);
                     try{socket.BeginReceive(recvPacket.GetPacket(), 0, shouldReceive, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), dataTransport);}
-                    catch {  transport.m_iocpTcpClient.Disconnect(); return; }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message + " >" + ex.StackTrace); 
+                        transport.m_iocpTcpClient.Disconnect(); return;
+                    }
                 }
                 else
                 {
                     PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, 4, transport.m_iocpTcpClient);
                     try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
-                    catch {  transport.m_iocpTcpClient.Disconnect(); return;}
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                        transport.m_iocpTcpClient.Disconnect(); return;
+                    }
                     transport.m_callBackObj.OnReceived(transport.m_iocpTcpClient, transport.m_packet);
                 }
             }
@@ -498,7 +538,9 @@ namespace EpServerEngine.cs
  
             int sentSize=0;
             try { sentSize = socket.EndSend(result); }
-            catch { 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 transport.m_iocpTcpClient.Disconnect();
                 transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
                 return; }
@@ -513,8 +555,9 @@ namespace EpServerEngine.cs
                 transport.m_offset = transport.m_offset + sentSize;
                 transport.m_size = transport.m_size - sentSize;
                 try { socket.BeginSend(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                     transport.m_iocpTcpClient.Disconnect();
                     transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
                     return;
@@ -529,8 +572,9 @@ namespace EpServerEngine.cs
                     transport.m_packetType = PacketType.DATA;
                     transport.m_size = transport.m_dataPacket.GetPacketByteSize();
                     try { socket.BeginSend(transport.m_packet.GetPacket(), 0, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
-                    catch
+                    catch (Exception ex)
                     {
+                        Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                         transport.m_iocpTcpClient.Disconnect();
                         transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
                         return;
@@ -550,10 +594,12 @@ namespace EpServerEngine.cs
                     if (delayedTransport != null)
                     {
                         try { socket.BeginSend(delayedTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), delayedTransport); }
-                        catch
+                        catch (Exception ex)
                         {
-                            transport.m_iocpTcpClient.Disconnect();
-                            transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
+                            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                            transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS);
+                            delayedTransport.m_iocpTcpClient.Disconnect();
+                            delayedTransport.m_callBackObj.OnSent(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
                             return;
                         }
                     }
