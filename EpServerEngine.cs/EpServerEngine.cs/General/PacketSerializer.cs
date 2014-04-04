@@ -172,7 +172,7 @@ namespace EpServerEngine.cs
         public void SetPacket(PacketStruct packet)
         {
             m_stream = new MemoryStream();
-            m_formatter.Serialize(m_stream, packet);            
+            m_formatter.Serialize(m_stream, packet); 
         }
 
         /// <summary>
