@@ -89,7 +89,8 @@ namespace EpServerEngine.cs
                     }
                     else
                     {
-                        Array.Clear(m_packet, 0, m_packet.Count());
+                        // Comment out due to performance issue
+                        //Array.Clear(m_packet, 0, m_packet.Count());
                     }
                     m_packetSize = byteSize;
                 }
@@ -128,11 +129,6 @@ namespace EpServerEngine.cs
 	            m_isAllocated=b.m_isAllocated;
             }
 	        
-        }
-
-        ~Packet()
-        {
-            resetPacket();
         }
 
         /// <summary>
@@ -176,10 +172,13 @@ namespace EpServerEngine.cs
 			            m_packet=new byte[packetByteSize];
 			            Debug.Assert(m_packet!=null);
 		            }
-		            if(packet!=null)
-                        Array.Copy(packet,m_packet,packetByteSize);
-		            else
-                        Array.Clear(m_packet,0,m_packet.Count());
+                    if (packet != null)
+                        Array.Copy(packet, m_packet, packetByteSize);
+                    else
+                    {
+                        // Comment out due to performance issue
+                        //Array.Clear(m_packet, 0, m_packet.Count());
+                    }
 		            m_packetSize=packetByteSize;
 
 	            }

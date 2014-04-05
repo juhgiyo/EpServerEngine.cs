@@ -130,11 +130,6 @@ namespace EpServerEngine.cs
             m_stream=orig.m_stream;
         }
 
-        ~PacketSerializer()
-        {
-            m_formatter = null;
-        }
-
 
         /// <summary>
         /// Get packet class object
