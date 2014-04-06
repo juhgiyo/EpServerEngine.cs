@@ -52,7 +52,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// IOCP TCP Server
     /// </summary>
-    public sealed class IocpTcpServer:ThreadEx, ServerInterface
+    public sealed class IocpTcpServer:ThreadEx, INetworkServer
     {
         /// <summary>
         /// port
@@ -70,7 +70,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-        private ServerCallbackInterface m_callBackObj=null;
+        private INetworkServerCallback m_callBackObj=null;
 
         /// <summary>
         /// general lock
@@ -221,14 +221,14 @@ namespace EpServerEngine.cs
             }
 
             IocpTcpSocket socket = new IocpTcpSocket(client, server);
-            SocketCallbackInterface socketCallbackObj=server.m_callBackObj.OnAccept(server, socket.GetIPInfo());
+            INetworkSocketCallback socketCallbackObj=server.m_callBackObj.OnAccept(server, socket.GetIPInfo());
             if (socketCallbackObj == null)
             {
                 socket.Disconnect();
             }
             else
             {
-                socket.SetSocketCallbackInterface(socketCallbackObj);
+                socket.SetSocketCallback(socketCallbackObj);
                 socket.Start();
                 lock (server.m_listLock)
                 {

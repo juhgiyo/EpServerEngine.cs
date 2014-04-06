@@ -54,7 +54,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// A IOCP TCP Client class.
     /// </summary>
-    public sealed class IocpTcpClient : ThreadEx, ClientInterface
+    public sealed class IocpTcpClient : ThreadEx, INetworkClient
     {
         /// <summary>
         /// Actual TCP client
@@ -86,7 +86,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-        private ClientCallbackInterface m_callBackObj=null;
+        private INetworkClientCallback m_callBackObj=null;
         /// <summary>
         /// hostname
         /// </summary>
@@ -432,7 +432,7 @@ namespace EpServerEngine.cs
             /// <summary>
             /// callback object
             /// </summary>
-            public ClientCallbackInterface m_callBackObj;
+            public INetworkClientCallback m_callBackObj;
             /// <summary>
             /// Default constructor
             /// </summary>

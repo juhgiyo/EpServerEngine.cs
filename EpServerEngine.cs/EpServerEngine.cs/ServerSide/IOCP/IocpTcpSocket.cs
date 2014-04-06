@@ -52,7 +52,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// IOCP TCP Socket class
     /// </summary>
-    public sealed class IocpTcpSocket:ThreadEx,SocketInterface
+    public sealed class IocpTcpSocket:ThreadEx,INetworkSocket
     {
         /// <summary>
         /// actual client
@@ -61,7 +61,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// managing server
         /// </summary>
-        private ServerInterface m_server = null;
+        private INetworkServer m_server = null;
         /// <summary>
         /// IP information
         /// </summary>
@@ -85,7 +85,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-        private SocketCallbackInterface m_callBackObj=null;
+        private INetworkSocketCallback m_callBackObj=null;
         
         /// <summary>
         /// send event
@@ -106,7 +106,7 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="client">client</param>
         /// <param name="server">managing server</param>
-        public IocpTcpSocket(TcpClient client, ServerInterface server):base()
+        public IocpTcpSocket(TcpClient client, INetworkServer server):base()
         {
             m_client=client;
             m_server = server;
@@ -144,7 +144,7 @@ namespace EpServerEngine.cs
         /// Get managing server
         /// </summary>
         /// <returns>managing server</returns>
-        public ServerInterface GetServer()
+        public INetworkServer GetServer()
         {
             return m_server;
         }
@@ -153,7 +153,7 @@ namespace EpServerEngine.cs
         /// Set socket callback interface
         /// </summary>
         /// <param name="callBackObj">callback object</param>
-        public void SetSocketCallbackInterface(SocketCallbackInterface callBackObj)
+        public void SetSocketCallback(INetworkSocketCallback callBackObj)
         {
             m_callBackObj = callBackObj;
         }
@@ -161,7 +161,7 @@ namespace EpServerEngine.cs
         /// Return the socket callback object
         /// </summary>
         /// <returns>the socket callback object</returns>
-        public SocketCallbackInterface GetSocketCallbackInterface()
+        public INetworkSocketCallback GetSocketCallback()
         {
             return m_callBackObj;
         }
@@ -302,7 +302,7 @@ namespace EpServerEngine.cs
             /// <summary>
             /// callback object
             /// </summary>
-            public SocketCallbackInterface m_callBackObj;
+            public INetworkSocketCallback m_callBackObj;
             /// <summary>
             /// Default constructor
             /// </summary>

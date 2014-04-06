@@ -53,7 +53,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-        public ServerCallbackInterface callBackObj;
+        public INetworkServerCallback callBackObj;
 
         /// <summary>
         /// port
@@ -73,7 +73,7 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
-        public ServerOps(ServerCallbackInterface callBackObj, String port)
+        public ServerOps(INetworkServerCallback callBackObj, String port)
         {
             this.port = port;
             this.callBackObj = callBackObj;
@@ -88,7 +88,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// Server interface
     /// </summary>
-    public interface ServerInterface
+    public interface INetworkServer
     {
         /// <summary>
         /// Return the port
@@ -141,32 +141,32 @@ namespace EpServerEngine.cs
     /// <summary>
     /// Server callback interface
     /// </summary>
-    public interface ServerCallbackInterface
+    public interface INetworkServerCallback
     {
         /// <summary>
         /// Server started callback
         /// </summary>
         /// <param name="server">server</param>
         /// <param name="status">start status</param>
-        void OnServerStarted(ServerInterface server, StartStatus status);
+        void OnServerStarted(INetworkServer server, StartStatus status);
         /// <summary>
         /// Accept callback
         /// </summary>
         /// <param name="server">server</param>
         /// <param name="ipInfo">connection info</param>
         /// <returns>the socket callback interface</returns>
-        SocketCallbackInterface OnAccept(ServerInterface server, IPInfo ipInfo);
+        INetworkSocketCallback OnAccept(INetworkServer server, IPInfo ipInfo);
         /// <summary>
         /// Server stopped callback
         /// </summary>
         /// <param name="server">server</param>
-        void OnServerStopped(ServerInterface server);
+        void OnServerStopped(INetworkServer server);
     };
 
     /// <summary>
     /// Socket interface
     /// </summary>
-    public interface SocketInterface
+    public interface INetworkSocket
     {
         /// <summary>
         /// Disconnect the client
@@ -195,40 +195,40 @@ namespace EpServerEngine.cs
         /// Return the server managing this socket
         /// </summary>
         /// <returns>the server managing this socket</returns>
-        ServerInterface GetServer();
+        INetworkServer GetServer();
 
     }
 
     /// <summary>
     /// Socket callback interface
     /// </summary>
-    public interface SocketCallbackInterface
+    public interface INetworkSocketCallback
     {
         /// <summary>
         /// NewConnection callback
         /// </summary>
         /// <param name="socket">client socket</param>
-        void OnNewConnection(SocketInterface socket);
+        void OnNewConnection(INetworkSocket socket);
 
         /// <summary>
         /// Receive callback
         /// </summary>
         /// <param name="socket">client socket</param>
         /// <param name="receivedPacket">received packet</param>
-        void OnReceived(SocketInterface socket, Packet receivedPacket);
+        void OnReceived(INetworkSocket socket, Packet receivedPacket);
 
         /// <summary>
         /// Send callback
         /// </summary>
         /// <param name="socket">client socket</param>
         /// <param name="status">stend status</param>
-        void OnSent(SocketInterface socket, SendStatus status);
+        void OnSent(INetworkSocket socket, SendStatus status);
 
         /// <summary>
         /// Disconnect callback
         /// </summary>
         /// <param name="socket">client socket</param>
-        void OnDisconnect(SocketInterface socket);
+        void OnDisconnect(INetworkSocket socket);
     };
     
     /// <summary>

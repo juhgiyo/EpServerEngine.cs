@@ -53,7 +53,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-		public ClientCallbackInterface callBackObj;
+		public INetworkClientCallback callBackObj;
         /// <summary>
         /// hostname
         /// </summary>
@@ -90,7 +90,7 @@ namespace EpServerEngine.cs
         /// <param name="port">port</param>
         /// <param name="noDelay">flag for no delay</param>
         /// <param name="waitTimeInMilliSec">wait time in millisecond</param>
-        public ClientOps(ClientCallbackInterface callBackObj, String hostName, String port, bool noDelay = true, int waitTimeInMilliSec = Timeout.Infinite)
+        public ClientOps(INetworkClientCallback callBackObj, String hostName, String port, bool noDelay = true, int waitTimeInMilliSec = Timeout.Infinite)
         {
             this.callBackObj = callBackObj;
             this.hostName = hostName;
@@ -107,7 +107,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// Client interface
     /// </summary>
-    public interface ClientInterface
+    public interface INetworkClient
     {
         /// <summary>
         /// Return the hostname
@@ -147,32 +147,32 @@ namespace EpServerEngine.cs
         
     }
 
-	public interface ClientCallbackInterface{
+	public interface INetworkClientCallback{
         /// <summary>
         /// Connection callback
         /// </summary>
         /// <param name="client">client</param>
         /// <param name="status">connection status</param>
-        void OnConnected(ClientInterface client, ConnectStatus status);
+        void OnConnected(INetworkClient client, ConnectStatus status);
 
         /// <summary>
         /// Receive callback
         /// </summary>
         /// <param name="client">client</param>
         /// <param name="receivedPacket">received packet</param>
-	    void OnReceived(ClientInterface client, Packet receivedPacket);
+	    void OnReceived(INetworkClient client, Packet receivedPacket);
 
         /// <summary>
         /// Send callback
         /// </summary>
         /// <param name="client">client</param>
         /// <param name="status">send status</param>
-        void OnSent(ClientInterface client, SendStatus status);
+        void OnSent(INetworkClient client, SendStatus status);
 
         /// <summary>
         /// Disconnect callback
         /// </summary>
         /// <param name="client">client</param>
-        void OnDisconnect(ClientInterface client);
+        void OnDisconnect(INetworkClient client);
 	};
 }
