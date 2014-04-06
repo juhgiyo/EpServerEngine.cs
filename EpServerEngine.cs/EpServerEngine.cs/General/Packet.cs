@@ -139,6 +139,20 @@ namespace EpServerEngine.cs
         {
             return m_packetSize;
         }
+
+        /// <summary>
+        /// Return the size of packet allocated in byte
+        /// </summary>
+        /// <returns>the size of packet allocated in byte</returns>
+        public int GetAllocatedByteSize()
+        {
+            if (m_packet != null)
+            {
+                return m_packet.Length;
+            }
+            return 0;
+        }
+
         /// <summary>
         /// Check the flag whether allocated memory or not
         /// </summary>
@@ -166,6 +180,15 @@ namespace EpServerEngine.cs
             {
                	if(m_isAllocated)
 	            {
+                    if (m_packet != null)
+                    {
+                        if (m_packet.Length >= packetByteSize)
+                        {
+                            Array.Copy(packet, m_packet, packetByteSize);
+                            m_packetSize = packetByteSize;
+                            return;
+                        }
+                    }
 		            m_packet=null;
 		            if(packetByteSize>0)
 		            {
