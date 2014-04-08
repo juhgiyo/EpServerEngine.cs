@@ -120,6 +120,12 @@ namespace EpServerEngine.cs
         private Packet m_recvSizePacket = new Packet(null, 4);
 
         /// <summary>
+        /// flag for connection check
+        /// </summary>
+        private bool m_isConnected = false;
+
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public IocpTcpClient():base()
@@ -232,6 +238,7 @@ namespace EpServerEngine.cs
                             status = ConnectStatus.FAIL_SOCKET_ERROR;
                             throw new CallbackException();
                         }
+                        m_isConnected = true;
                     }
                     else
                     {
@@ -244,15 +251,29 @@ namespace EpServerEngine.cs
             }
             catch(CallbackException)
             {
-                if (m_callBackObj != null) 
-                    m_callBackObj.OnConnected(this, status);
+                if (m_callBackObj != null)
+                {
+                    Thread t = new Thread(delegate()
+                    {
+                        m_callBackObj.OnConnected(this, status);
+                    });
+                    t.Start();
+                    
+                }
                 return;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 if (m_callBackObj != null)
-                    m_callBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
+                {
+                    Thread t = new Thread(delegate()
+                    {
+                        m_callBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
+                    });
+                    t.Start();
+                   
+                }
                 return;
             }
             startReceive();
@@ -264,7 +285,11 @@ namespace EpServerEngine.cs
         /// <param name="ops">options for client</param>
         public void Connect(ClientOps ops)
         {
-
+            lock (m_generalLock)
+            {
+                if (IsConnectionAlive())
+                    return;
+            }
             if (ops == null)
                 ops = ClientOps.defaultClientOps;
             if (ops.callBackObj == null)
@@ -309,6 +334,7 @@ namespace EpServerEngine.cs
                 if (!IsConnectionAlive())
                     return;
                 m_client.Close();
+                m_isConnected = false;
             }
 
             lock (m_sendQueueLock)
@@ -325,15 +351,17 @@ namespace EpServerEngine.cs
         /// <returns>true if connection is alive, otherwise false</returns>
         public bool IsConnectionAlive()
         {
-            try
-            {
-                return m_client.Connected;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                return false;
-            }
+            return m_isConnected;
+// 	        try
+// 	        {
+// 	            return m_client.Connected;
+// 	        }
+// 	        catch (Exception ex)
+// 	        {
+// 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+// 	            return false;
+// 	        }
+
         }
 
         /// <summary>

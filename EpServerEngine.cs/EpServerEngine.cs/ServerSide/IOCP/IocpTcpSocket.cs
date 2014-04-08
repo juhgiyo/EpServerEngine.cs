@@ -102,6 +102,11 @@ namespace EpServerEngine.cs
         private Packet m_sendSizePacket = new Packet(null, 4, false);
 
         /// <summary>
+        /// flag for connection check
+        /// </summary>
+        private bool m_isConnected = false;
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="client">client</param>
@@ -170,6 +175,10 @@ namespace EpServerEngine.cs
         /// </summary>
         protected override void execute()
         {
+            lock (m_generalLock)
+            {
+                m_isConnected = true;
+            }
             startReceive();
             if(m_callBackObj!=null) 
                 m_callBackObj.OnNewConnection(this);
@@ -185,6 +194,7 @@ namespace EpServerEngine.cs
                 if (!IsConnectionAlive())
                     return;
                 m_client.Close();
+                m_isConnected = false;
             }
             m_server.DetachClient(this);
 
@@ -202,15 +212,16 @@ namespace EpServerEngine.cs
         /// <returns>true if connection is alive, otherwise false</returns>
         public bool IsConnectionAlive()
         {
-            try
-            {
-                return m_client.Connected;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                return false;
-            }
+            return m_isConnected;
+// 	        try
+// 	        {
+// 	            return m_client.Connected;
+// 	        }
+// 	        catch (Exception ex)
+// 	        {
+// 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+// 	            return false;
+// 	        }
         }
 
         /// <summary>
