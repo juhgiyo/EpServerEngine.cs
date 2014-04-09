@@ -6,9 +6,9 @@ EpServerEngine.cs
 DESCRIPTION
 -----------
 
-EpServerEngine is a Visual C#+ software framework that supports the development of server/client application un a [MIT License](http://opensource.org/licenses/mit-license.php).
+EpServerEngine.cs is a Visual C#+ software framework that supports the development of server/client application under a [MIT License](http://opensource.org/licenses/mit-license.php).
 It handles all the initialize/usage WinSock library, which is time consuming task. 
-EpServerEngine supports Visual C# 2012.
+EpServerEngine.cs supports Visual C# 2012.
 Source can be downloaded at [EpServerEngine.cs](http://github.com/juhgiyo/epserverengine.cs)
 
 
