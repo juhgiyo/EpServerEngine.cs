@@ -239,6 +239,15 @@ namespace EpServerEngine.cs
                             throw new CallbackException();
                         }
                         m_isConnected = true;
+                        if (m_callBackObj != null)
+                        {
+                            Thread t = new Thread(delegate()
+                            {
+                                m_callBackObj.OnConnected(this, ConnectStatus.SUCCESS);
+                            });
+                            t.Start();
+                        }
+                           
                     }
                     else
                     {
@@ -318,8 +327,8 @@ namespace EpServerEngine.cs
                 return;
             }
             tcpclient.m_timeOutEvent.SetEvent();
-            if (tcpclient.m_callBackObj != null) 
-                tcpclient.m_callBackObj.OnConnected(tcpclient, ConnectStatus.SUCCESS);
+            //if (tcpclient.m_callBackObj != null) 
+            //    tcpclient.m_callBackObj.OnConnected(tcpclient, ConnectStatus.SUCCESS);
             return;
           
         }
