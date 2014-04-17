@@ -202,8 +202,14 @@ namespace EpServerEngine.cs
             {
                 m_sendQueue.Clear();
             }
-            if(m_callBackObj!=null) 
-                m_callBackObj.OnDisconnect(this);
+            if (m_callBackObj != null)
+            {
+                Thread t = new Thread(delegate()
+                {
+                    m_callBackObj.OnDisconnect(this);
+                });
+                t.Start();
+            }
         }
 
         /// <summary>
@@ -232,14 +238,26 @@ namespace EpServerEngine.cs
         {
             if (!IsConnectionAlive())
             {
-                if (m_callBackObj != null) 
-                    m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED);
+                if (m_callBackObj != null)
+                {
+                    Thread t = new Thread(delegate()
+                    {
+                        m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED);
+                    });
+                    t.Start();
+                }
                 return;
             }
             if (packet.GetPacketByteSize() <= 0)
             {
-                if (m_callBackObj != null) 
-                    m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET);
+                if (m_callBackObj != null)
+                {
+                    Thread t = new Thread(delegate()
+                    {
+                        m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET);
+                    });
+                    t.Start();
+                }
                 return;
             }
 
