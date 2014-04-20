@@ -102,7 +102,7 @@ namespace EpServerEngine.cs
         public PacketSerializer(byte[] rawData)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream = new MemoryStream(rawData);
         }
 
@@ -115,7 +115,7 @@ namespace EpServerEngine.cs
         public PacketSerializer(byte[] rawData,int offset,int count)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream = new MemoryStream(rawData, offset, count);
         }
 
@@ -126,7 +126,7 @@ namespace EpServerEngine.cs
         public PacketSerializer(PacketSerializer<PacketStruct> orig)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
             m_stream=orig.m_stream;
         }
 
