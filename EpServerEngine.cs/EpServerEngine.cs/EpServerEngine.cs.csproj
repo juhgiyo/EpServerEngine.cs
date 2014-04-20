@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EpLibrary.cs">
-      <HintPath>libs\Debug\EpLibrary.cs.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -52,6 +49,12 @@
     <Compile Include="ServerSide\IOCP\IocpTcpServer.cs" />
     <Compile Include="ServerSide\IOCP\IocpTcpSocket.cs" />
     <Compile Include="ServerSide\ServerInterface.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs.csproj">
+      <Project>{166162df-96c8-4034-ae61-e25b2380dd9a}</Project>
+      <Name>EpLibrary.cs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -47,10 +47,16 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
 using System.IO;
 using System.Reflection;
+using EpLibrary.cs;
 
 namespace EpServerEngine.cs
 {
-    
+    public enum SerializerMode
+    {
+        DEFAULT,
+        ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION,
+        SILVERLIGHT_SERIALIZER
+    }
     /// <summary>
     /// Packet Serializer
     /// </summary>
@@ -84,25 +90,56 @@ namespace EpServerEngine.cs
         private Object m_packetContainerLock = new Object();
 
         /// <summary>
+        /// Serializer Mode
+        /// </summary>
+        public SerializerMode Mode
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="packet">packet class object</param>
-        public PacketSerializer(PacketStruct packet=null)
+        /// <param name="serializerMode">serializer mode</param>
+        public PacketSerializer(PacketStruct packet=null, SerializerMode serializerMode=SerializerMode.DEFAULT)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
             
             m_stream = new MemoryStream();
-            m_formatter.Serialize(m_stream, packet);      
+            Mode = serializerMode;
+            switch (Mode)
+            {
+                case SerializerMode.DEFAULT:
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                    m_formatter.Serialize(m_stream, packet);
+                    break;
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    SilverlightSerializer.Serialize(packet, m_stream);
+                    break;
+            }
+            
         }
 
         /// <summary>
         /// Default  constructor
         /// </summary>
         /// <param name="rawData">serialized packet</param>
-        public PacketSerializer(byte[] rawData)
+        /// <param name="serializerMode">serializer mode</param>
+        public PacketSerializer(byte[] rawData, SerializerMode serializerMode = SerializerMode.DEFAULT)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            Mode = serializerMode;
+            switch (Mode)
+            {
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                    m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+                    break;
+                case SerializerMode.DEFAULT:
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    break;
+            }
             m_stream = new MemoryStream(rawData);
         }
 
@@ -112,10 +149,20 @@ namespace EpServerEngine.cs
         /// <param name="rawData">serialized packet</param>
         /// <param name="offset">rawData offset</param>
         /// <param name="count">rawData byte size</param>
-        public PacketSerializer(byte[] rawData,int offset,int count)
+        /// <param name="serializerMode">serializer mode</param>
+        public PacketSerializer(byte[] rawData, int offset, int count, SerializerMode serializerMode = SerializerMode.DEFAULT)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            Mode = serializerMode;
+            switch (Mode)
+            {
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                    m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+                    break;
+                case SerializerMode.DEFAULT:
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    break;
+            }
             m_stream = new MemoryStream(rawData, offset, count);
         }
 
@@ -126,7 +173,16 @@ namespace EpServerEngine.cs
         public PacketSerializer(PacketSerializer<PacketStruct> orig)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
-            //m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+            Mode = orig.Mode;
+            switch (Mode)
+            {
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                    m_formatter.Binder = new AllowAllAssemblyVersionDeserializationBinder();
+                    break;
+                case SerializerMode.DEFAULT:
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    break;
+            }
             m_stream=orig.m_stream;
         }
 
@@ -138,7 +194,18 @@ namespace EpServerEngine.cs
         public PacketStruct GetPacket()
         {
             m_stream.Seek(0, SeekOrigin.Begin);
-            return (PacketStruct)m_formatter.Deserialize(m_stream);
+            PacketStruct retPacket=null;
+            switch (Mode)
+            {
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                case SerializerMode.DEFAULT:
+                    retPacket = (PacketStruct)m_formatter.Deserialize(m_stream);
+                    break;
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    retPacket = (PacketStruct)SilverlightSerializer.Deserialize(m_stream);
+                    break;
+            }
+            return retPacket;
         }
 
         /// <summary>
@@ -167,7 +234,16 @@ namespace EpServerEngine.cs
         public void SetPacket(PacketStruct packet)
         {
             m_stream = new MemoryStream();
-            m_formatter.Serialize(m_stream, packet); 
+            switch (Mode)
+            {
+                case SerializerMode.DEFAULT:
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                    m_formatter.Serialize(m_stream, packet);
+                    break;
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    SilverlightSerializer.Serialize(packet, m_stream);
+                    break;
+            }
         }
 
         /// <summary>
