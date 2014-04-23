@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpServerEngine.cs", "EpServerEngine.cs\EpServerEngine.cs.csproj", "{C1D11EAA-7F7F-4AD7-96F3-F0D5A20AA9E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpLibrary.cs", "..\..\EpLibrary.cs\SL\EpLibrary.cs\EpLibrary.cs.csproj", "{1DE9AD04-A7AD-4C41-BFBD-4C9231891DB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1D11EAA-7F7F-4AD7-96F3-F0D5A20AA9E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1D11EAA-7F7F-4AD7-96F3-F0D5A20AA9E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1D11EAA-7F7F-4AD7-96F3-F0D5A20AA9E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1D11EAA-7F7F-4AD7-96F3-F0D5A20AA9E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DE9AD04-A7AD-4C41-BFBD-4C9231891DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE9AD04-A7AD-4C41-BFBD-4C9231891DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DE9AD04-A7AD-4C41-BFBD-4C9231891DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DE9AD04-A7AD-4C41-BFBD-4C9231891DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
