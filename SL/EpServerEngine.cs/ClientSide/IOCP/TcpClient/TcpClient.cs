@@ -85,7 +85,14 @@ namespace System.Net.Sockets
             e.UserToken = stateObject;
             e.RemoteEndPoint = _endpoint;
             e.Completed += OnConnectedAsync;
-            this.Client.ConnectAsync(e);
+            try
+            {
+                this.Client.ConnectAsync(e);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+            }
         }
 
         public void Connect(IPEndPoint endpoint)
@@ -123,8 +130,9 @@ namespace System.Net.Sockets
                 this.Client.ConnectAsync(e);
                 this.WaitOne();
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 this.Continue();
             }
         }
@@ -177,12 +185,12 @@ namespace System.Net.Sockets
             catch (ObjectDisposedException ex)
             {
                 // no one cares at this point
-                Debug.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
             }
             catch (SocketException ex)
             {
                 // no one cares at this point
-                Debug.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
             }
         }
     }

@@ -165,6 +165,7 @@ namespace System.Net.Sockets
             var stateObject = e.UserToken as StateObject;
             stateObject.SocketAsyncEventArgs = e;
             stateObject.Callback(stateObject);
+            e.Dispose();
         }
 
         public override int EndRead(IAsyncResult asyncResult)
@@ -233,6 +234,7 @@ namespace System.Net.Sockets
             var stateObject = e.UserToken as StateObject;
             stateObject.SocketAsyncEventArgs = e;
             stateObject.Callback(stateObject);
+            e.Dispose();
         }
 
         void ValidateWriteArguments(byte[] buffer, int offset, int size)

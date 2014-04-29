@@ -103,7 +103,7 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="packet">packet class object</param>
         /// <param name="serializerMode">serializer mode</param>
-        public PacketSerializer(PacketStruct packet=null, SerializerMode serializerMode=SerializerMode.DEFAULT)
+        public PacketSerializer(PacketStruct packet = null, SerializerMode serializerMode = SerializerMode.SILVERLIGHT_SERIALIZER)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
             
@@ -127,7 +127,7 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="rawData">serialized packet</param>
         /// <param name="serializerMode">serializer mode</param>
-        public PacketSerializer(byte[] rawData, SerializerMode serializerMode = SerializerMode.DEFAULT)
+        public PacketSerializer(byte[] rawData, SerializerMode serializerMode = SerializerMode.SILVERLIGHT_SERIALIZER)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
             Mode = serializerMode;
@@ -150,7 +150,7 @@ namespace EpServerEngine.cs
         /// <param name="offset">rawData offset</param>
         /// <param name="count">rawData byte size</param>
         /// <param name="serializerMode">serializer mode</param>
-        public PacketSerializer(byte[] rawData, int offset, int count, SerializerMode serializerMode = SerializerMode.DEFAULT)
+        public PacketSerializer(byte[] rawData, int offset, int count, SerializerMode serializerMode = SerializerMode.SILVERLIGHT_SERIALIZER)
         {
             m_formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
             Mode = serializerMode;
