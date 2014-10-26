@@ -1,13 +1,13 @@
 EpServerEngine.cs
 ============
-#### Visual C# WinSock Server/Client Engine ####
+#### Visual C# IOCP TCP Server/Client Engine ####
 
 
 DESCRIPTION
 -----------
 
 EpServerEngine.cs is a Visual C#+ software framework that supports the development of server/client application under a [MIT License](http://opensource.org/licenses/mit-license.php).
-It handles all the initialize/usage WinSock library, which is time consuming task. 
+It handles all the initialize/usage Socket library, which is time consuming task. 
 EpServerEngine.cs supports Visual C# 2012.
 Source can be downloaded at [EpServerEngine.cs](http://github.com/juhgiyo/epserverengine.cs)
 
@@ -31,13 +31,11 @@ What is in the EpServerEngine?
 * Client Side
   1. IOCP TCP
      * IOCP TCP Client
-     * Client Interface
 
 * Server Side
   1. IOCP TCP
      * IOCP TCP Server
      * IOCP TCP Socket
-     * Server Interface
 
 USAGE
 -----
