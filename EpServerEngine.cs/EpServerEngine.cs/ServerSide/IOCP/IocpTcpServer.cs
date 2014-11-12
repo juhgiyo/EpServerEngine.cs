@@ -205,7 +205,18 @@ namespace EpServerEngine.cs
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 if (client != null)
+                {
+                    try
+                    {
+                        client.Client.Shutdown(SocketShutdown.Both);
+                        client.Client.Disconnect(true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message + " >" + e.StackTrace);
+                    }
                     client.Close();
+                }
                 server.StopServer();
                 return; 
             }

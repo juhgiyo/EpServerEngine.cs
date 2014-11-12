@@ -251,6 +251,15 @@ namespace EpServerEngine.cs
                     }
                     else
                     {
+                        try
+                        {
+                            m_client.Client.Shutdown(SocketShutdown.Both);
+                            m_client.Client.Disconnect(true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                        }
                         m_client.Close();
                         status = ConnectStatus.FAIL_TIME_OUT;
                         throw new CallbackException();
@@ -342,6 +351,15 @@ namespace EpServerEngine.cs
             {
                 if (!IsConnectionAlive())
                     return;
+                try
+                {
+                    m_client.Client.Shutdown(SocketShutdown.Both);
+                    m_client.Client.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                }
                 m_client.Close();
                 m_isConnected = false;
             }

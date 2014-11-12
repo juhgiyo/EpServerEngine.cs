@@ -189,6 +189,15 @@ namespace EpServerEngine.cs
             {
                 if (!IsConnectionAlive())
                     return;
+                try
+                {
+                    m_client.Client.Shutdown(SocketShutdown.Both);
+                    m_client.Client.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                }
                 m_client.Close();
                 m_isConnected = false;
             }
