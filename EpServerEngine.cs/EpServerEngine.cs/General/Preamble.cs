@@ -56,7 +56,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// preamble
         /// </summary>
-        private const ulong preamble = 0xF0F0F0F0F0F0F0F0;
+        private const ulong preamble = 0xF0F0F0F0F0F0F0F8;
 
         /// <summary>
         /// Built preamble byte array by size of shouldReceive
@@ -83,11 +83,38 @@ namespace EpServerEngine.cs
             MemoryStream stream = new MemoryStream(preamblePacket);
             ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
             int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
-            if (preamble != curPreamble)
-                return -1;
-            if (shouldReceive < 0)
+            if (preamble != curPreamble || shouldReceive < 0)
                 return -1;
             return shouldReceive;
+        }
+
+        /// <summary>
+        /// Return the possible preamble start index from preamblePacket received
+        /// </summary>
+        /// <param name="preamblePacket">preamble packet received</param>
+        /// <returns>index of possible preamble start of preamblePacket</returns>
+        public static int CheckPreamble(byte[] preamblePacket)
+        {
+            byte[] correctPreamble =BitConverter.GetBytes(preamble);
+            int preTrav = 0;
+            for(preTrav=0;preTrav<preamblePacket.Length;preTrav++)
+            {
+                bool contains = true;
+                for (int idx = 0; idx < correctPreamble.Length; idx++)
+                {
+                    if (idx + preTrav >= preamblePacket.Length)
+                        break;
+                    if (correctPreamble[idx] != preamblePacket[preTrav + idx])
+                    {
+                        contains = false;
+                        break;
+                    }
+                }
+                if (contains == true)
+                    break;
+                
+            }
+            return preTrav;
         }
     }
 }

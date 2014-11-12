@@ -407,11 +407,29 @@ namespace EpServerEngine.cs
                 {
                     //int shouldReceive = BitConverter.ToInt32(transport.m_packet.GetPacket(), 0);
                     int shouldReceive = Preamble.ToShouldReceive(transport.m_packet.GetPacket());
-                    // TODO: Need smarter checking algorithm for preamble instead of disconnecting on async
+
+                    // preamble packet is corrupted
+                    // try to receive another byte to check preamble
                     if (shouldReceive < 0)
                     {
-                        Console.WriteLine("Sync is corrupted. Disconnecting socket...");
-                        transport.m_iocpTcpClient.Disconnect(); return;
+                        int preambleOffset = Preamble.CheckPreamble(transport.m_packet.GetPacket());
+                        // set offset to length - preamble offset
+                        transport.m_offset = transport.m_packet.GetPacketByteSize() - preambleOffset;
+                        // need to receive as much as preamble offset
+                        transport.m_size = preambleOffset;
+                        try
+                        {
+                            // shift to left by preamble offset
+                            Buffer.BlockCopy(transport.m_packet.GetPacket(), preambleOffset, transport.m_packet.GetPacket(), 0, transport.m_packet.GetPacketByteSize() - preambleOffset);
+                            // receive rest of bytes at the end
+                            socket.BeginReceive(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onReceived), transport);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                            transport.m_iocpTcpClient.Disconnect(); return;
+                        }
+                        return;
                     }
                     Packet recvPacket = new Packet(null, shouldReceive);
                     PacketTransporter dataTransport = new PacketTransporter(PacketType.DATA, recvPacket, 0, shouldReceive, transport.m_iocpTcpClient);
