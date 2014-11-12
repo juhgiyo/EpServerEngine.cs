@@ -56,7 +56,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// preamble
         /// </summary>
-        private const ulong preamble = 0xF0F0F0F0F0F0F0F8;
+        private const ulong preamble = 0x00F0F0F0F0F0F0F8;
 
         /// <summary>
         /// Built preamble byte array by size of shouldReceive
