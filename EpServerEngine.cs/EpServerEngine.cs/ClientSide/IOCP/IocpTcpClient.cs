@@ -117,7 +117,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// receive message size packet
         /// </summary>
-        private Packet m_recvSizePacket = new Packet(null, 4);
+        private Packet m_recvSizePacket = new Packet(null, Preamble.SIZE_PACKET_LENGTH);
 
         /// <summary>
         /// flag for connection check
@@ -413,12 +413,13 @@ namespace EpServerEngine.cs
 
             lock (m_sendLock)
             {
-                Packet sendSizePacket = new Packet(null, 4, false);
-                PacketTransporter transport = new PacketTransporter(PacketType.SIZE, sendSizePacket, 0, 4, this, packet);
-                sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), 4);
+                Packet sendSizePacket = new Packet(null, Preamble.SIZE_PACKET_LENGTH, false);
+                PacketTransporter transport = new PacketTransporter(PacketType.SIZE, sendSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, this, packet);
+                //sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), ServerConf.SIZE_PACKET_LENGTH);
+                sendSizePacket.SetPacket(Preamble.ToPreamblePacket(packet.GetPacketByteSize()), Preamble.SIZE_PACKET_LENGTH);
                 if (m_sendEvent.TryLock())
                 {
-                    try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
+                    try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -513,8 +514,8 @@ namespace EpServerEngine.cs
         /// </summary>
         private void startReceive()
         {
-            PacketTransporter transport = new PacketTransporter(PacketType.SIZE,m_recvSizePacket, 0, 4, this);
-            try { m_client.Client.BeginReceive(m_recvSizePacket.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport); }
+            PacketTransporter transport = new PacketTransporter(PacketType.SIZE, m_recvSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, this);
+            try { m_client.Client.BeginReceive(m_recvSizePacket.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport); }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -559,7 +560,14 @@ namespace EpServerEngine.cs
             {
                 if (transport.m_packetType == PacketType.SIZE)
                 {
-                    int shouldReceive = BitConverter.ToInt32(transport.m_packet.GetPacket(), 0);
+                    //int shouldReceive = BitConverter.ToInt32(transport.m_packet.GetPacket(), 0);
+                    int shouldReceive = Preamble.ToShouldReceive(transport.m_packet.GetPacket());
+                    // TODO: Need smarter checking algorithm for preamble instead of disconnecting on async
+                    if (shouldReceive < 0)
+                    {
+                        Console.WriteLine("Sync is corrupted. Disconnecting socket...");
+                        transport.m_iocpTcpClient.Disconnect(); return;
+                    }
                     Packet recvPacket = new Packet(null, shouldReceive);
                     PacketTransporter dataTransport = new PacketTransporter(PacketType.DATA, recvPacket, 0, shouldReceive, transport.m_iocpTcpClient);
                     try{socket.BeginReceive(recvPacket.GetPacket(), 0, shouldReceive, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), dataTransport);}
@@ -571,8 +579,8 @@ namespace EpServerEngine.cs
                 }
                 else
                 {
-                    PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, 4, transport.m_iocpTcpClient);
-                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
+                    PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, transport.m_iocpTcpClient);
+                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -648,7 +656,7 @@ namespace EpServerEngine.cs
                     }
                     if (delayedTransport != null)
                     {
-                        try { socket.BeginSend(delayedTransport.m_packet.GetPacket(), 0, 4, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), delayedTransport); }
+                        try { socket.BeginSend(delayedTransport.m_packet.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), delayedTransport); }
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message + " >" + ex.StackTrace);

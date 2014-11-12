@@ -44,6 +44,7 @@
     <Compile Include="ClientSide\IOCP\IocpTcpClient.cs" />
     <Compile Include="General\Packet.cs" />
     <Compile Include="General\PacketSerializer.cs" />
+    <Compile Include="General\Preamble.cs" />
     <Compile Include="General\ServerConf.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerSide\IOCP\IocpTcpServer.cs" />
