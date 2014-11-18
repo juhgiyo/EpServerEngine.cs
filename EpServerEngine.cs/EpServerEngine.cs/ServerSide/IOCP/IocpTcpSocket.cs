@@ -192,7 +192,7 @@ namespace EpServerEngine.cs
                 try
                 {
                     m_client.Client.Shutdown(SocketShutdown.Both);
-                    m_client.Client.Disconnect(true);
+                    //m_client.Client.Disconnect(true);
                 }
                 catch (Exception ex)
                 {
