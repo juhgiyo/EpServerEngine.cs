@@ -171,6 +171,7 @@ namespace EpServerEngine.cs
 
 
                     m_listener = new TcpListener(IPAddress.Any, Convert.ToInt32(m_port));
+                    m_listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     m_listener.Start();
                     m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), this);
                 }
