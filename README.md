@@ -1,3 +1,4 @@
+<a href='https://pledgie.com/campaigns/27765'><img alt='Click here to lend your support to: EpServerEngine.cs and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/27765.png?skin_name=chrome' border='0' ></a>
 EpServerEngine.cs
 ============
 #### Visual C# IOCP TCP Server/Client Engine ####
@@ -47,6 +48,10 @@ REFERENCE
 ---------
 * [EpLibrary.cs](https://github.com/juhgiyo/EpLibrary.cs)
 
+DONATION
+---------
+
+<a href='https://pledgie.com/campaigns/27765'><img alt='Click here to lend your support to: EpServerEngine.cs and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/27765.png?skin_name=chrome' border='0' ></a>
 
 LICENSE
 -------
