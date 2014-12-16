@@ -1,4 +1,4 @@
-<a href='https://pledgie.com/campaigns/27765'><img alt='Click here to lend your support to: EpServerEngine.cs and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/27765.png?skin_name=chrome' border='0' ></a>
+[![Gratipay][gratipay-image]][gratipay-url]
 EpServerEngine.cs
 ============
 #### Visual C# IOCP TCP Server/Client Engine ####
@@ -50,7 +50,9 @@ REFERENCE
 
 DONATION
 ---------
+[![Gratipay][gratipay-image]][gratipay-url]
 
+or donation by Pledgie  
 <a href='https://pledgie.com/campaigns/27765'><img alt='Click here to lend your support to: EpServerEngine.cs and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/27765.png?skin_name=chrome' border='0' ></a>
 
 LICENSE
@@ -77,3 +79,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+[gratipay-image]: https://img.shields.io/gratipay/juhgiyo.svg?style=flat
+[gratipay-url]: https://gratipay.com/juhgiyo/
