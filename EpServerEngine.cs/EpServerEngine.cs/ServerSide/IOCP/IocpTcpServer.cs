@@ -217,9 +217,8 @@ namespace EpServerEngine.cs
                         Console.WriteLine(e.Message + " >" + e.StackTrace);
                     }
                     client.Close();
+                    client = null;
                 }
-                server.StopServer();
-                return; 
             }
             
             try { server.m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), server); }
@@ -229,24 +228,28 @@ namespace EpServerEngine.cs
                 if (client != null)
                     client.Close();
                 server.StopServer(); 
-                return; 
+                return;
             }
 
-            IocpTcpSocket socket = new IocpTcpSocket(client, server);
-            INetworkSocketCallback socketCallbackObj=server.m_callBackObj.OnAccept(server, socket.GetIPInfo());
-            if (socketCallbackObj == null)
+            if (client != null)
             {
-                socket.Disconnect();
-            }
-            else
-            {
-                socket.SetSocketCallback(socketCallbackObj);
-                socket.Start();
-                lock (server.m_listLock)
+                IocpTcpSocket socket = new IocpTcpSocket(client, server);
+                INetworkSocketCallback socketCallbackObj = server.m_callBackObj.OnAccept(server, socket.GetIPInfo());
+                if (socketCallbackObj == null)
                 {
-                    server.m_socketList.Add(socket);
+                    socket.Disconnect();
+                }
+                else
+                {
+                    socket.SetSocketCallback(socketCallbackObj);
+                    socket.Start();
+                    lock (server.m_listLock)
+                    {
+                        server.m_socketList.Add(socket);
+                    }
                 }
             }
+           
 
         }
 
