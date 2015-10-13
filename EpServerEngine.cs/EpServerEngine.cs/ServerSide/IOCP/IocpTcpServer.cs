@@ -168,7 +168,7 @@ namespace EpServerEngine.cs
                     {
                         m_port = ServerConf.DEFAULT_PORT;
                     }
-
+                    m_socketList.Clear();
 
                     m_listener = new TcpListener(IPAddress.Any, Convert.ToInt32(m_port));
                     m_listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -304,11 +304,11 @@ namespace EpServerEngine.cs
         {
             lock (m_listLock)
             {
-                foreach (IocpTcpSocket socket in m_socketList)
+                List<IocpTcpSocket> socketList = GetClientSocketList();
+                foreach (IocpTcpSocket socket in socketList)
                 {
                     socket.Disconnect();
                 }
-                m_socketList.Clear();
             }
         }
         /// <summary>
@@ -323,8 +323,6 @@ namespace EpServerEngine.cs
             {
                 socket.Send(packet);
             }
-            m_socketList.Clear();
-            
         }
 
         /// <summary>
