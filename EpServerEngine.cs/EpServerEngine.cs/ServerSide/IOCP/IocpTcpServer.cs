@@ -84,7 +84,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// client socket list
         /// </summary>
-        private List<IocpTcpSocket> m_socketList=new List<IocpTcpSocket>();
+        private HashSet<IocpTcpSocket> m_socketList = new HashSet<IocpTcpSocket>();
 
         /// <summary>
         /// Default constructor
@@ -304,9 +304,9 @@ namespace EpServerEngine.cs
         {
             lock (m_listLock)
             {
-                for (int trav = m_socketList.Count - 1; trav >= 0; trav--)
+                foreach (IocpTcpSocket socket in m_socketList)
                 {
-                    m_socketList[trav].Disconnect();
+                    socket.Disconnect();
                 }
                 m_socketList.Clear();
             }
