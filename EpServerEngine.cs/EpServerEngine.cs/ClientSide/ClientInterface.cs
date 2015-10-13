@@ -144,6 +144,14 @@ namespace EpServerEngine.cs
         /// <param name="packet">packet to send</param>
         void Send(Packet packet);
 
+        /// <summary>
+        /// Send given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        void Send(byte[] data, int offset, int dataSize);
+
         
     }
 

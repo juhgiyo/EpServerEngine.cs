@@ -294,6 +294,20 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// Send given data to the client
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Send(byte[] data, int offset, int dataSize)
+        {
+            byte[] packet = new byte[dataSize];
+            MemoryStream stream = new MemoryStream(packet);
+            stream.Write(data, offset, dataSize);
+            Packet sendPacket = new Packet(packet, packet.Count(), false);
+            Send(sendPacket);
+        }
+        /// <summary>
         /// Enumerator for packet type
         /// </summary>
         private enum PacketType

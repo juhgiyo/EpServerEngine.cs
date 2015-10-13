@@ -324,6 +324,21 @@ namespace EpServerEngine.cs
                 socket.Send(packet);
             }
         }
+        /// <summary>
+        /// Broadcast given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Broadcast(byte[] data, int offset, int dataSize)
+        {
+            List<IocpTcpSocket> socketList = GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                socket.Send(data, offset, dataSize);
+            }
+        }
 
         /// <summary>
         /// Return the client socket list

@@ -124,6 +124,14 @@ namespace EpServerEngine.cs
         void Broadcast(Packet packet);
 
         /// <summary>
+        /// Broadcast given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        void Broadcast(byte[] data, int offset, int dataSize);
+
+        /// <summary>
         /// Return the connected client list
         /// </summary>
         /// <returns>the connected client list</returns>
@@ -184,6 +192,14 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="packet">the packet to send</param>
         void Send(Packet packet);
+
+        /// <summary>
+        /// Send given data to the client
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        void Send(byte[] data, int offset, int dataSize);
 
         /// <summary>
         /// Return the IP information of the client
