@@ -152,6 +152,12 @@ namespace EpServerEngine.cs
         /// <param name="dataSize">data size in bytes</param>
         void Send(byte[] data, int offset, int dataSize);
 
+        /// <summary>
+        /// Send given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        void Send(byte[] data);
+
         
     }
 

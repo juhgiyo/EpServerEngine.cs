@@ -307,6 +307,16 @@ namespace EpServerEngine.cs
             Packet sendPacket = new Packet(packet, packet.Count(), false);
             Send(sendPacket);
         }
+
+        /// <summary>
+        /// Send given data to the client
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        public void Send(byte[] data)
+        {
+            Send(data, 0, data.Count());
+        }
+
         /// <summary>
         /// Enumerator for packet type
         /// </summary>

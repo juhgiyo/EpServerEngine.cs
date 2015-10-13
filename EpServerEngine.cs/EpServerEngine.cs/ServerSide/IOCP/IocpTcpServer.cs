@@ -341,6 +341,20 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// Broadcast given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        public void Broadcast(byte[] data)
+        {
+            List<IocpTcpSocket> socketList = GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                socket.Send(data);
+            }
+        }
+
+        /// <summary>
         /// Return the client socket list
         /// </summary>
         /// <returns>the client socket list</returns>
