@@ -250,7 +250,8 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="socket">client socket</param>
         /// <param name="status">stend status</param>
-        void OnSent(INetworkSocket socket, SendStatus status);
+        /// <param name="sentPacket">sent packet</param>
+        void OnSent(INetworkSocket socket, SendStatus status, Packet sentPacket);
 
         /// <summary>
         /// Disconnect callback

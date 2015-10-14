@@ -410,7 +410,7 @@ namespace EpServerEngine.cs
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED);
+                        m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
                     });
                     t.Start();
                 }
@@ -422,7 +422,7 @@ namespace EpServerEngine.cs
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET);
+                        m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
                     });
                     t.Start();
                 }
@@ -442,7 +442,7 @@ namespace EpServerEngine.cs
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                         if (m_callBackObj != null)
-                            m_callBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR);
+                            m_callBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR, packet);
                         Disconnect(); 
                         return; 
                     }
@@ -665,12 +665,12 @@ namespace EpServerEngine.cs
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 transport.m_iocpTcpClient.Disconnect();
-                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
+                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                 return; }
             if (sentSize == 0)
             {
                 transport.m_iocpTcpClient.Disconnect();
-                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_CONNECTION_CLOSING);
+                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_CONNECTION_CLOSING, transport.m_dataPacket);
                 return;
             }
             if (sentSize < transport.m_size)
@@ -682,7 +682,7 @@ namespace EpServerEngine.cs
                 {
                     Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                     transport.m_iocpTcpClient.Disconnect();
-                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
+                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                     return;
                 }
             }
@@ -699,7 +699,7 @@ namespace EpServerEngine.cs
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                         transport.m_iocpTcpClient.Disconnect();
-                        transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
+                        transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                         return;
                     }
                 }
@@ -720,9 +720,9 @@ namespace EpServerEngine.cs
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                            transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS);
+                            transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
                             delayedTransport.m_iocpTcpClient.Disconnect();
-                            delayedTransport.m_callBackObj.OnSent(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR);
+                            delayedTransport.m_callBackObj.OnSent(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, delayedTransport.m_dataPacket);
                             return;
                         }
                     }
@@ -730,7 +730,7 @@ namespace EpServerEngine.cs
                     {
                         transport.m_iocpTcpClient.m_sendEvent.Unlock();
                     }
-                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS);
+                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
                 }
             }
 

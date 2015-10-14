@@ -181,7 +181,8 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="client">client</param>
         /// <param name="status">send status</param>
-        void OnSent(INetworkClient client, SendStatus status);
+        /// <param name="sentPacket">sent packet</param>
+        void OnSent(INetworkClient client, SendStatus status, Packet sentPacket);
 
         /// <summary>
         /// Disconnect callback
