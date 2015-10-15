@@ -53,34 +53,54 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-		public INetworkClientCallback callBackObj;
+        public INetworkClientCallback CallBackObj
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// hostname
         /// </summary>
-        public String hostName;
+        public String HostName
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// port
         /// </summary>
-		public String port;
+        public String Port
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// flag for no delay
         /// </summary>
-        public bool noDelay;
+        public bool NoDelay
+        {
+            get;
+            set;
+        }
         /// <summary>
-        /// wait time in millisecond
+        /// connection time out in millisecond
         /// </summary>
-        public int waitTimeInMilliSec;
+        public int ConnectionTimeOut
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Default constructor
         /// </summary>
         public ClientOps()
 		{
-			callBackObj=null;
-			hostName=ServerConf.DEFAULT_HOSTNAME;
-			port=ServerConf.DEFAULT_PORT;
-            noDelay = true;
-            waitTimeInMilliSec = Timeout.Infinite;
+			CallBackObj=null;
+			HostName=ServerConf.DEFAULT_HOSTNAME;
+			Port=ServerConf.DEFAULT_PORT;
+            NoDelay = true;
+            ConnectionTimeOut = Timeout.Infinite;
 		}
         /// <summary>
         /// Default constructor
@@ -89,14 +109,14 @@ namespace EpServerEngine.cs
         /// <param name="hostName">hostname</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">flag for no delay</param>
-        /// <param name="waitTimeInMilliSec">wait time in millisecond</param>
-        public ClientOps(INetworkClientCallback callBackObj, String hostName, String port, bool noDelay = true, int waitTimeInMilliSec = Timeout.Infinite)
+        /// <param name="connectionTimeOut">connection wait time in millisecond</param>
+        public ClientOps(INetworkClientCallback callBackObj, String hostName, String port, bool noDelay = true, int connectionTimeOut = Timeout.Infinite)
         {
-            this.callBackObj = callBackObj;
-            this.hostName = hostName;
-            this.port = port;
-            this.noDelay = noDelay;
-            this.waitTimeInMilliSec = waitTimeInMilliSec;
+            this.CallBackObj = callBackObj;
+            this.HostName = hostName;
+            this.Port = port;
+            this.NoDelay = noDelay;
+            this.ConnectionTimeOut = connectionTimeOut;
         }
         /// <summary>
         /// default client option
@@ -113,13 +133,28 @@ namespace EpServerEngine.cs
         /// Return the hostname
         /// </summary>
         /// <returns>hostname</returns>
-        String GetHostName();
+        String HostName { get; }
 
         /// <summary>
         /// Return the port
         /// </summary>
         /// <returns>port</returns>
-        String GetPort();
+        String Port{get;}
+        /// <summary>
+        /// Return no delay flag
+        /// </summary>
+        bool NoDelay
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Return connection time out in milliseconds
+        /// </summary>
+        int ConnectionTimeOut
+        {
+            get;
+        }
 
         /// <summary>
         /// Connect to server with given option
@@ -136,7 +171,7 @@ namespace EpServerEngine.cs
         /// Check if the connection is alive
         /// </summary>
         /// <returns></returns>
-        bool IsConnectionAlive();
+        bool IsConnectionAlive { get; }
 
         /// <summary>
         /// Send given packet to the server

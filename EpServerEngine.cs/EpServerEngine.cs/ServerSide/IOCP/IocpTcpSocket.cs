@@ -128,7 +128,7 @@ namespace EpServerEngine.cs
 
         ~IocpTcpSocket()
         {
-            if (IsConnectionAlive())
+            if (IsConnectionAlive)
                 Disconnect();
         }
 
@@ -136,20 +136,25 @@ namespace EpServerEngine.cs
         /// Get IP information
         /// </summary>
         /// <returns>IP information</returns>
-        public IPInfo GetIPInfo()
+        public IPInfo IPInfo
         {
-            return m_ipInfo;
+            get
+            {
+                return m_ipInfo;
+            }
         }
 
         /// <summary>
         /// Get managing server
         /// </summary>
         /// <returns>managing server</returns>
-        public INetworkServer GetServer()
+        public INetworkServer Server
         {
-            return m_server;
+            get
+            {
+                return m_server;
+            }
         }
-
         /// <summary>
         /// Set socket callback interface
         /// </summary>
@@ -187,7 +192,7 @@ namespace EpServerEngine.cs
         {
             lock (m_generalLock)
             {
-                if (!IsConnectionAlive())
+                if (!IsConnectionAlive)
                     return;
                 try
                 {
@@ -221,18 +226,22 @@ namespace EpServerEngine.cs
         /// Check if the connection is alive
         /// </summary>
         /// <returns>true if connection is alive, otherwise false</returns>
-        public bool IsConnectionAlive()
+        public bool IsConnectionAlive
         {
-            return m_isConnected;
-// 	        try
-// 	        {
-// 	            return m_client.Connected;
-// 	        }
-// 	        catch (Exception ex)
-// 	        {
-// 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-// 	            return false;
-// 	        }
+            get
+            {
+                return m_isConnected;
+                // 	        try
+                // 	        {
+                // 	            return m_client.Connected;
+                // 	        }
+                // 	        catch (Exception ex)
+                // 	        {
+                // 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                // 	            return false;
+                // 	        }
+
+            }
         }
 
         /// <summary>
@@ -241,7 +250,7 @@ namespace EpServerEngine.cs
         /// <param name="packet">the packet to send</param>
         public void Send(Packet packet)
         {
-            if (!IsConnectionAlive())
+            if (!IsConnectionAlive)
             {
                 if (m_callBackObj != null)
                 {

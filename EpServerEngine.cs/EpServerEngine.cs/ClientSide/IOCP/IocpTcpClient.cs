@@ -100,9 +100,9 @@ namespace EpServerEngine.cs
         /// </summary>
         private bool m_noDelay;
         /// <summary>
-        /// wait time in millisecond
+        /// connection time out in millisecond
         /// </summary>
-        private int m_waitTimeInMilliSec;
+        private int m_connectionTimeOut;
 
         /// <summary>
         /// connection time-out event
@@ -144,7 +144,7 @@ namespace EpServerEngine.cs
         }
         ~IocpTcpClient()
         {
-            if (IsConnectionAlive())
+            if (IsConnectionAlive)
                 Disconnect();
         }
 
@@ -152,11 +152,14 @@ namespace EpServerEngine.cs
         /// Return hostname
         /// </summary>
         /// <returns>hostname</returns>
-        public String GetHostName()
+        public String HostName
         {
-            lock (m_generalLock)
+            get
             {
-                return m_hostName;
+                lock (m_generalLock)
+                {
+                    return m_hostName;
+                }
             }
         }
 
@@ -164,13 +167,44 @@ namespace EpServerEngine.cs
         /// Return port
         /// </summary>
         /// <returns>port</returns>
-        public String GetPort()
+        public String Port
         {
-            lock (m_generalLock)
+            get
             {
-                return m_port;
+                lock (m_generalLock)
+                {
+                    return m_port;
+                }
             }
-            
+        }
+
+        /// <summary>
+        /// Return no delay flag
+        /// </summary>
+        public bool NoDelay
+        {
+
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_noDelay;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return connection time out in milliseconds
+        /// </summary>
+        public int ConnectionTimeOut
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_connectionTimeOut;
+                }
+            }
         }
         /// <summary>
         /// Callback Exception class
@@ -205,17 +239,17 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
-                    if (IsConnectionAlive())
+                    if (IsConnectionAlive)
                     {
                         status = ConnectStatus.FAIL_ALREADY_CONNECTED;
                         throw new CallbackException();
                     }
 
-                    m_callBackObj = m_clientOps.callBackObj;
-                    m_hostName = m_clientOps.hostName;
-                    m_port = m_clientOps.port;
-                    m_noDelay = m_clientOps.noDelay;
-                    m_waitTimeInMilliSec = m_clientOps.waitTimeInMilliSec;
+                    m_callBackObj = m_clientOps.CallBackObj;
+                    m_hostName = m_clientOps.HostName;
+                    m_port = m_clientOps.Port;
+                    m_noDelay = m_clientOps.NoDelay;
+                    m_connectionTimeOut = m_clientOps.ConnectionTimeOut;
 
                     if (m_hostName == null || m_hostName.Length == 0)
                     {
@@ -231,7 +265,7 @@ namespace EpServerEngine.cs
                     m_client.NoDelay = m_noDelay;
 
                     m_client.Client.BeginConnect(m_hostName, Convert.ToInt32(m_port), new AsyncCallback(IocpTcpClient.onConnected), this);
-                    if (m_timeOutEvent.WaitForEvent(m_waitTimeInMilliSec))
+                    if (m_timeOutEvent.WaitForEvent(m_connectionTimeOut))
                     {
                         if (!m_client.Connected)
                         {
@@ -305,12 +339,12 @@ namespace EpServerEngine.cs
         {
             lock (m_generalLock)
             {
-                if (IsConnectionAlive())
+                if (IsConnectionAlive)
                     return;
             }
             if (ops == null)
                 ops = ClientOps.defaultClientOps;
-            if (ops.callBackObj == null)
+            if (ops.CallBackObj == null)
                 throw new NullReferenceException("callBackObj is null!");
             lock (m_generalLock)
             {
@@ -349,7 +383,7 @@ namespace EpServerEngine.cs
         {
             lock (m_generalLock)
             {
-                if (!IsConnectionAlive())
+                if (!IsConnectionAlive)
                     return;
                 try
                 {
@@ -382,19 +416,21 @@ namespace EpServerEngine.cs
         /// Check if the connection is alive
         /// </summary>
         /// <returns>true if connection is alive, otherwise false</returns>
-        public bool IsConnectionAlive()
+        public bool IsConnectionAlive
         {
-            return m_isConnected;
-// 	        try
-// 	        {
-// 	            return m_client.Connected;
-// 	        }
-// 	        catch (Exception ex)
-// 	        {
-// 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-// 	            return false;
-// 	        }
-
+            get
+            {
+                return m_isConnected;
+                // 	        try
+                // 	        {
+                // 	            return m_client.Connected;
+                // 	        }
+                // 	        catch (Exception ex)
+                // 	        {
+                // 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                // 	            return false;
+                // 	        }
+            }
         }
 
         /// <summary>
@@ -404,7 +440,7 @@ namespace EpServerEngine.cs
         public void Send(Packet packet)
         {
 
-            if (!IsConnectionAlive())
+            if (!IsConnectionAlive)
             {
                 if (m_callBackObj != null)
                 {

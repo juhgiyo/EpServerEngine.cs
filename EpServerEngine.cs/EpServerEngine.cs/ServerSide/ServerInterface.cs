@@ -53,20 +53,28 @@ namespace EpServerEngine.cs
         /// <summary>
         /// callback object
         /// </summary>
-        public INetworkServerCallback callBackObj;
+        public INetworkServerCallback CallBackObj
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// port
         /// </summary>
-        public String port;
+        public String Port
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Default constructor
         /// </summary>
         public ServerOps()
         {
-            callBackObj = null;
-            port = ServerConf.DEFAULT_PORT;
+            CallBackObj = null;
+            Port = ServerConf.DEFAULT_PORT;
         }
         /// <summary>
         /// Default constructor
@@ -75,8 +83,8 @@ namespace EpServerEngine.cs
         /// <param name="port">port</param>
         public ServerOps(INetworkServerCallback callBackObj, String port)
         {
-            this.port = port;
-            this.callBackObj = callBackObj;
+            this.Port = port;
+            this.CallBackObj = callBackObj;
         }
 
         /// <summary>
@@ -94,7 +102,7 @@ namespace EpServerEngine.cs
         /// Return the port
         /// </summary>
         /// <returns>port</returns>
-        String GetPort();
+        String Port { get; }
 
         /// <summary>
         /// Start the server with given option
@@ -111,7 +119,7 @@ namespace EpServerEngine.cs
         /// Check whether server is started or not
         /// </summary>
         /// <returns>true if server is started, otherwise false</returns>
-        bool IsServerStarted();
+        bool IsServerStarted { get; }
         /// <summary>
         /// Shutdown all the client, connected
         /// </summary>
@@ -191,7 +199,7 @@ namespace EpServerEngine.cs
         /// Check if the connection is alive
         /// </summary>
         /// <returns>true if the connection is alive, otherwise false</returns>
-        bool IsConnectionAlive();
+        bool IsConnectionAlive { get; }
 
         /// <summary>
         /// Send given packet to the client
@@ -217,13 +225,13 @@ namespace EpServerEngine.cs
         /// Return the IP information of the client
         /// </summary>
         /// <returns>the IP information of the client</returns>
-        IPInfo GetIPInfo();
+        IPInfo IPInfo { get; }
 
         /// <summary>
         /// Return the server managing this socket
         /// </summary>
         /// <returns>the server managing this socket</returns>
-        INetworkServer GetServer();
+        INetworkServer Server { get; }
 
     }
 
@@ -309,27 +317,36 @@ namespace EpServerEngine.cs
         /// Return the IP address string
         /// </summary>
         /// <returns>the IP address string</returns>
-        public String GetIPAddress()
+        public String IPAddress
         {
-            return m_ipAddress;
+            get{
+                return m_ipAddress;
+            }
+            
         }
 
         /// <summary>
         /// Return the IP End-point
         /// </summary>
         /// <returns>the IP End-point</returns>
-        public IPEndPoint GetIPEndPoint()
+        public IPEndPoint IPEndPoint
         {
-            return m_ipEndPoint;
+            get
+            {
+                return m_ipEndPoint;
+            }
         }
 
         /// <summary>
         /// Return the IP End-point type
         /// </summary>
         /// <returns>the IP End-point type</returns>
-        public IPEndPointType GetIPEndPointType()
+        public IPEndPointType IPEndPointType
         {
-            return m_ipEndPointType;
+            get
+            {
+                return m_ipEndPointType;
+            }
         }
     }
 }

@@ -107,7 +107,7 @@ namespace EpServerEngine.cs
 
         ~IocpTcpServer()
         {
-            if(IsServerStarted())
+            if(IsServerStarted)
                 StopServer();
         }
 
@@ -115,9 +115,12 @@ namespace EpServerEngine.cs
         /// Return port
         /// </summary>
         /// <returns>port</returns>
-        public String GetPort()
+        public String Port
         {
-            return m_port;
+            get
+            {
+                return m_port;
+            }
         }
 
         /// <summary>
@@ -155,14 +158,14 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
-                    if (IsServerStarted())
+                    if (IsServerStarted)
                     {
                         status = StartStatus.FAIL_ALREADY_STARTED;
                         throw new CallbackException();
                     }
 
-                    m_callBackObj = m_serverOps.callBackObj;
-                    m_port = m_serverOps.port;
+                    m_callBackObj = m_serverOps.CallBackObj;
+                    m_port = m_serverOps.Port;
 
                     if (m_port == null || m_port.Length == 0)
                     {
@@ -234,7 +237,7 @@ namespace EpServerEngine.cs
             if (client != null)
             {
                 IocpTcpSocket socket = new IocpTcpSocket(client, server);
-                INetworkSocketCallback socketCallbackObj = server.m_callBackObj.OnAccept(server, socket.GetIPInfo());
+                INetworkSocketCallback socketCallbackObj = server.m_callBackObj.OnAccept(server, socket.IPInfo);
                 if (socketCallbackObj == null)
                 {
                     socket.Disconnect();
@@ -261,7 +264,7 @@ namespace EpServerEngine.cs
         {
             if (ops == null)
                 ops = ServerOps.defaultServerOps;
-            if (ops.callBackObj == null)
+            if (ops.CallBackObj == null)
                 throw new NullReferenceException("callBackObj is null!");
             lock (m_generalLock)
             {
@@ -276,7 +279,7 @@ namespace EpServerEngine.cs
         {
             lock (m_generalLock)
             {
-                if (!IsServerStarted())
+                if (!IsServerStarted)
                     return;
                 m_listener.Stop();
                 m_listener = null;
@@ -291,11 +294,14 @@ namespace EpServerEngine.cs
         /// Check if the server is started
         /// </summary>
         /// <returns>true if the server is started, otherwise false</returns>
-        public bool IsServerStarted()
+        public bool IsServerStarted
         {
-            if (m_listener != null)
-                return true;
-            return false;
+            get
+            {
+                if (m_listener != null)
+                    return true;
+                return false;
+            }
         }
         /// <summary>
         /// Shut down all the client, connected
