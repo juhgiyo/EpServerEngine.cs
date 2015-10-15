@@ -292,13 +292,15 @@ namespace EpServerEngine.cs
                     status = ConnectStatus.FAIL_ALREADY_CONNECTED;
                     throw new CallbackException();
                 }
-
-                CallBackObj = m_clientOps.CallBackObj;
-                HostName = m_clientOps.HostName;
-                Port = m_clientOps.Port;
-                NoDelay = m_clientOps.NoDelay;
-                ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
-
+                lock (m_generalLock)
+                {
+                    CallBackObj = m_clientOps.CallBackObj;
+                    HostName = m_clientOps.HostName;
+                    Port = m_clientOps.Port;
+                    NoDelay = m_clientOps.NoDelay;
+                    ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
+                }
+                
                 if (HostName == null || HostName.Length == 0)
                 {
                     HostName = ServerConf.DEFAULT_HOSTNAME;
