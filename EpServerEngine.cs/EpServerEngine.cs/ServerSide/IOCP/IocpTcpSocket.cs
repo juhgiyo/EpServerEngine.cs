@@ -95,7 +95,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// receive size packet
         /// </summary>
-        private Packet m_recvSizePacket = new Packet(null, Preamble.SIZE_PACKET_LENGTH);
+        private Packet m_recvSizePacket = new Packet(null,0, Preamble.SIZE_PACKET_LENGTH);
 
         /// <summary>
         /// flag for connection check
@@ -314,7 +314,7 @@ namespace EpServerEngine.cs
 //             byte[] packet = new byte[dataSize];
 //             MemoryStream stream = new MemoryStream(packet);
 //             stream.Write(data, offset, dataSize);
-//             Packet sendPacket = new Packet(packet, packet.Count(), false);
+            //             Packet sendPacket = new Packet(packet,0, packet.Count(), false);
             Send(sendPacket);
         }
 
@@ -521,7 +521,7 @@ namespace EpServerEngine.cs
                         }
                         return;
                     }
-                    Packet recvPacket = new Packet(null, shouldReceive);
+                    Packet recvPacket = new Packet(null, 0, shouldReceive);
                     PacketTransporter dataTransport = new PacketTransporter(PacketType.DATA, recvPacket, 0, shouldReceive, transport.m_iocpTcpClient);
                     try { socket.BeginReceive(recvPacket.PacketRaw, 0, shouldReceive, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onReceived), dataTransport); }
                     catch (Exception ex)
