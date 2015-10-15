@@ -327,6 +327,53 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// Broadcast given data to all client other than this
+        /// </summary>
+        /// <param name="packet">packet to broadcast</param>
+        public void Broadcast(Packet packet)
+        {
+            List<IocpTcpSocket> socketList = Server.GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                if(socket!=this)
+                    socket.Send(packet);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast given data to all client other than this
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Broadcast(byte[] data, int offset, int dataSize)
+        {
+            List<IocpTcpSocket> socketList = Server.GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                if (socket != this)
+                    socket.Send(data, offset, dataSize);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast given data to all client other than this
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        public void Broadcast(byte[] data)
+        {
+            List<IocpTcpSocket> socketList = Server.GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                if (socket != this)
+                    socket.Send(data);
+            }
+        }
+
+        /// <summary>
         /// Enumerator for packet type
         /// </summary>
         private enum PacketType
