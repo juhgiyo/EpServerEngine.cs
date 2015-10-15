@@ -277,11 +277,11 @@ namespace EpServerEngine.cs
 
             lock (m_sendLock)
             {
-                Packet sendSizePacket = new Packet(null, Preamble.SIZE_PACKET_LENGTH, false);
+                Packet sendSizePacket = new Packet(null, 0, Preamble.SIZE_PACKET_LENGTH, false);
                 PacketTransporter transport = new PacketTransporter(PacketType.SIZE, sendSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, this, packet);
                 
                 //sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), 4);
-                sendSizePacket.SetPacket(Preamble.ToPreamblePacket(packet.GetPacketByteSize()), Preamble.SIZE_PACKET_LENGTH);
+                sendSizePacket.SetPacket(Preamble.ToPreamblePacket(packet.GetPacketByteSize()), 0, Preamble.SIZE_PACKET_LENGTH);
                 if (m_sendEvent.TryLock())
                 {
                     try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onSent), transport); }
@@ -310,10 +310,11 @@ namespace EpServerEngine.cs
         /// <param name="dataSize">data size in bytes</param>
         public void Send(byte[] data, int offset, int dataSize)
         {
-            byte[] packet = new byte[dataSize];
-            MemoryStream stream = new MemoryStream(packet);
-            stream.Write(data, offset, dataSize);
-            Packet sendPacket = new Packet(packet, packet.Count(), false);
+            Packet sendPacket = new Packet(data,offset, dataSize, false);
+//             byte[] packet = new byte[dataSize];
+//             MemoryStream stream = new MemoryStream(packet);
+//             stream.Write(data, offset, dataSize);
+//             Packet sendPacket = new Packet(packet, packet.Count(), false);
             Send(sendPacket);
         }
 
@@ -587,10 +588,10 @@ namespace EpServerEngine.cs
                 if (transport.m_packetType == PacketType.SIZE)
                 {
                     transport.m_packet = transport.m_dataPacket;
-                    transport.m_offset = 0;
+                    transport.m_offset = transport.m_dataPacket.GetOffset();
                     transport.m_packetType = PacketType.DATA;
                     transport.m_size = transport.m_dataPacket.GetPacketByteSize();
-                    try { socket.BeginSend(transport.m_packet.GetPacket(), 0, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onSent), transport); }
+                    try { socket.BeginSend(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpSocket.onSent), transport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);

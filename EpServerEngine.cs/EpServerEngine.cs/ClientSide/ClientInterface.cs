@@ -155,6 +155,14 @@ namespace EpServerEngine.cs
         {
             get;
         }
+        /// <summary>
+        /// callback object
+        /// </summary>
+        INetworkClientCallback CallBackObj
+        {
+            get;
+        }
+
 
         /// <summary>
         /// Connect to server with given option

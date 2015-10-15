@@ -58,6 +58,11 @@ namespace EpServerEngine.cs
         /// packet byte size
         /// </summary>
         private int m_packetSize;
+
+        /// <summary>
+        /// offset from start idx
+        /// </summary>
+        private int m_offset;
         /// <summary>
         /// flag whether memory is allocated in this object or not
         /// </summary>
@@ -71,9 +76,10 @@ namespace EpServerEngine.cs
         /// Default constructor
         /// </summary>
         /// <param name="packet">packet</param>
+        /// <param name="offset">offset in byte</param>
         /// <param name="byteSize">packet size in byte</param>
         /// <param name="shouldAllocate">flag whether to allocate memory or not</param>
-        public Packet(byte[] packet = null, int byteSize = 0, bool shouldAllocate = true)
+        public Packet(byte[] packet = null, int offset=0, int byteSize = 0, bool shouldAllocate = true)
         {
             m_packet = null;
             m_packetSize = 0;
@@ -85,19 +91,21 @@ namespace EpServerEngine.cs
                     m_packet = new byte[byteSize];
                     if (packet != null)
                     {
-                        Array.Copy(packet, m_packet, byteSize);
+                        Array.Copy(packet,offset, m_packet,0, byteSize);
                     }
                     else
                     {
                         // Comment out due to performance issue
                         //Array.Clear(m_packet, 0, m_packet.Count());
                     }
+                    m_offset = 0;
                     m_packetSize = byteSize;
                 }
             }
             else
             {
                 m_packet = packet;
+                m_offset = offset;
                 m_packetSize = byteSize;
             }
         }
@@ -119,13 +127,13 @@ namespace EpServerEngine.cs
 			            m_packet=new byte[b.m_packetSize];
                         Array.Copy(b.m_packet, m_packet, b.m_packetSize);
 		            }
-		            m_packetSize=b.m_packetSize;
 	            }
 	            else
 	            {
 		            m_packet=b.m_packet;
-		            m_packetSize=b.m_packetSize;
 	            }
+                m_packetSize = b.m_packetSize;
+                m_offset = b.m_offset;
 	            m_isAllocated=b.m_isAllocated;
             }
 	        
@@ -138,6 +146,15 @@ namespace EpServerEngine.cs
         public int GetPacketByteSize()
         {
             return m_packetSize;
+        }
+
+        /// <summary>
+        /// Return the offset of the raw data
+        /// </summary>
+        /// <returns>the offset of the raw data</returns>
+        public int GetOffset()
+        {
+            return m_offset;
         }
 
         /// <summary>
@@ -173,8 +190,9 @@ namespace EpServerEngine.cs
         /// Set the packet with given byte array
         /// </summary>
         /// <param name="packet">packet data</param>
+        /// <param name="offset">offset in byte</param>
         /// <param name="packetByteSize">packet in byte size</param>
-        public void SetPacket(byte[] packet, int packetByteSize)
+        public void SetPacket(byte[] packet, int offset, int packetByteSize)
         {
             lock (m_packetLock)
             {
@@ -184,8 +202,9 @@ namespace EpServerEngine.cs
                     {
                         if (m_packet.Length >= packetByteSize)
                         {
-                            Array.Copy(packet, m_packet, packetByteSize);
+                            Array.Copy(packet,offset, m_packet,0, packetByteSize);
                             m_packetSize = packetByteSize;
+                            m_offset = 0;
                             return;
                         }
                     }
@@ -196,19 +215,21 @@ namespace EpServerEngine.cs
 			            Debug.Assert(m_packet!=null);
 		            }
                     if (packet != null)
-                        Array.Copy(packet, m_packet, packetByteSize);
+                        Array.Copy(packet,offset, m_packet,0, packetByteSize);
                     else
                     {
                         // Comment out due to performance issue
                         //Array.Clear(m_packet, 0, m_packet.Count());
                     }
 		            m_packetSize=packetByteSize;
+                    m_offset = 0;
 
 	            }
 	            else
 	            {
 		            m_packet=packet;
 		            m_packetSize=packetByteSize;
+                    m_offset = offset;
 	            }
             }
         }

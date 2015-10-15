@@ -119,10 +119,27 @@ namespace EpServerEngine.cs
         {
             get
             {
-                return m_port;
+                lock (m_generalLock)
+                {
+                    return m_port;
+                }
+                
             }
         }
 
+        /// <summary>
+        /// callback object
+        /// </summary>
+        public INetworkServerCallback CallBackObj
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_callBackObj;
+                }
+            }
+        }
         /// <summary>
         /// Callback Exception class
         /// </summary>

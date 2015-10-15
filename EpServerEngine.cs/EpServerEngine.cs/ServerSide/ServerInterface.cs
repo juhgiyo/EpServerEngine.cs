@@ -105,6 +105,14 @@ namespace EpServerEngine.cs
         String Port { get; }
 
         /// <summary>
+        /// callback object
+        /// </summary>
+        INetworkServerCallback CallBackObj
+        {
+            get;
+        }
+
+        /// <summary>
         /// Start the server with given option
         /// </summary>
         /// <param name="ops">option for the server</param>
