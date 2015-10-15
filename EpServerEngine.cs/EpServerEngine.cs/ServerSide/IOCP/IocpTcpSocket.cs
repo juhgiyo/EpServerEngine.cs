@@ -192,21 +192,22 @@ namespace EpServerEngine.cs
         /// </summary>
         public void Disconnect()
         {
-
-            if (!IsConnectionAlive)
-                return;
-            try
+            lock (m_generalLock)
             {
-                m_client.Client.Shutdown(SocketShutdown.Both);
-                //m_client.Client.Disconnect(true);
+                if (!IsConnectionAlive)
+                    return;
+                try
+                {
+                    m_client.Client.Shutdown(SocketShutdown.Both);
+                    //m_client.Client.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                }
+                m_client.Close();
+                IsConnectionAlive = false;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-            }
-            m_client.Close();
-            IsConnectionAlive = false;
-
             m_server.DetachClient(this);
 
             lock (m_sendQueueLock)

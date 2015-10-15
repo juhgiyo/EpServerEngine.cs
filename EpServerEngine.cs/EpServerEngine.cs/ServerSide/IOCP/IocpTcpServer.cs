@@ -187,14 +187,14 @@ namespace EpServerEngine.cs
             StartStatus status=StartStatus.FAIL_SOCKET_ERROR;
             try
             {
-                if (IsServerStarted)
-                {
-                    status = StartStatus.FAIL_ALREADY_STARTED;
-                    throw new CallbackException();
-                }
-
                 lock (m_generalLock)
                 {
+                    if (IsServerStarted)
+                    {
+                        status = StartStatus.FAIL_ALREADY_STARTED;
+                        throw new CallbackException();
+                    }
+
                     CallBackObj = m_serverOps.CallBackObj;
                     Port = m_serverOps.Port;
 
@@ -209,6 +209,7 @@ namespace EpServerEngine.cs
                     m_listener.Start();
                     m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), this);
                 }
+            
             }
             catch (CallbackException)
             {
@@ -308,11 +309,11 @@ namespace EpServerEngine.cs
         /// </summary>
         public void StopServer()
         {
-
-            if (!IsServerStarted)
-                return;
             lock (m_generalLock)
             {
+                if (!IsServerStarted)
+                    return;
+
                 m_listener.Stop();
                 m_listener = null;
             }

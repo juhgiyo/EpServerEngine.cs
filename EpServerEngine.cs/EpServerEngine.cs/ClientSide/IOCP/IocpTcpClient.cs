@@ -286,69 +286,69 @@ namespace EpServerEngine.cs
             ConnectStatus status = ConnectStatus.SUCCESS;
             try
             {
-
-                if (IsConnectionAlive)
-                {
-                    status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-                    throw new CallbackException();
-                }
                 lock (m_generalLock)
                 {
+                    if (IsConnectionAlive)
+                    {
+                        status = ConnectStatus.FAIL_ALREADY_CONNECTED;
+                        throw new CallbackException();
+                    }
+
                     CallBackObj = m_clientOps.CallBackObj;
                     HostName = m_clientOps.HostName;
                     Port = m_clientOps.Port;
                     NoDelay = m_clientOps.NoDelay;
                     ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
-                }
-                
-                if (HostName == null || HostName.Length == 0)
-                {
-                    HostName = ServerConf.DEFAULT_HOSTNAME;
-                }
-
-                if (Port == null || Port.Length == 0)
-                {
-                    Port = ServerConf.DEFAULT_PORT;
-                }
 
 
-                m_client.NoDelay = NoDelay;
-
-                m_client.Client.BeginConnect(HostName, Convert.ToInt32(Port), new AsyncCallback(IocpTcpClient.onConnected), this);
-                if (m_timeOutEvent.WaitForEvent(ConnectionTimeOut))
-                {
-                    if (!m_client.Connected)
+                    if (HostName == null || HostName.Length == 0)
                     {
-                        status = ConnectStatus.FAIL_SOCKET_ERROR;
+                        HostName = ServerConf.DEFAULT_HOSTNAME;
+                    }
+
+                    if (Port == null || Port.Length == 0)
+                    {
+                        Port = ServerConf.DEFAULT_PORT;
+                    }
+
+
+                    m_client.NoDelay = NoDelay;
+
+                    m_client.Client.BeginConnect(HostName, Convert.ToInt32(Port), new AsyncCallback(IocpTcpClient.onConnected), this);
+                    if (m_timeOutEvent.WaitForEvent(ConnectionTimeOut))
+                    {
+                        if (!m_client.Connected)
+                        {
+                            status = ConnectStatus.FAIL_SOCKET_ERROR;
+                            throw new CallbackException();
+                        }
+                        IsConnectionAlive = true;
+                        if (CallBackObj != null)
+                        {
+                            Thread t = new Thread(delegate()
+                            {
+                                CallBackObj.OnConnected(this, ConnectStatus.SUCCESS);
+                            });
+                            t.Start();
+                        }
+
+                    }
+                    else
+                    {
+                        try
+                        {
+                            m_client.Client.Shutdown(SocketShutdown.Both);
+                            //Client.Client.Disconnect(true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                        }
+                        m_client.Close();
+                        status = ConnectStatus.FAIL_TIME_OUT;
                         throw new CallbackException();
                     }
-                    IsConnectionAlive = true;
-                    if (CallBackObj != null)
-                    {
-                        Thread t = new Thread(delegate()
-                        {
-                            CallBackObj.OnConnected(this, ConnectStatus.SUCCESS);
-                        });
-                        t.Start();
-                    }
-                           
                 }
-                else
-                {
-                    try
-                    {
-                        m_client.Client.Shutdown(SocketShutdown.Both);
-                        //Client.Client.Disconnect(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                    }
-                    m_client.Close();
-                    status = ConnectStatus.FAIL_TIME_OUT;
-                    throw new CallbackException();
-                }
-              
             }
             catch(CallbackException)
             {
@@ -427,20 +427,22 @@ namespace EpServerEngine.cs
         /// </summary>
         public void Disconnect()
         {
-            if (!IsConnectionAlive)
-                return;
-            try
+            lock (m_generalLock)
             {
-                m_client.Client.Shutdown(SocketShutdown.Both);
-                //m_client.Client.Disconnect(true);
+                if (!IsConnectionAlive)
+                    return;
+                try
+                {
+                    m_client.Client.Shutdown(SocketShutdown.Both);
+                    //m_client.Client.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                }
+                m_client.Close();
+                IsConnectionAlive = false;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-            }
-            m_client.Close();
-            IsConnectionAlive = false;
-
 
             lock (m_sendQueueLock)
             {
