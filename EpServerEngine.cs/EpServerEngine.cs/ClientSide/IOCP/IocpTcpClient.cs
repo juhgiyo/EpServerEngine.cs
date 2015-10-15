@@ -466,7 +466,7 @@ namespace EpServerEngine.cs
                 }
                 return;
             }
-            if (packet.GetPacketByteSize() <= 0)
+            if (packet.PacketByteSize <= 0)
             {
                 if (m_callBackObj != null)
                 {
@@ -484,10 +484,10 @@ namespace EpServerEngine.cs
                 Packet sendSizePacket = new Packet(null,0, Preamble.SIZE_PACKET_LENGTH, false);
                 PacketTransporter transport = new PacketTransporter(PacketType.SIZE, sendSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, this, packet);
                 //sendSizePacket.SetPacket(BitConverter.GetBytes(packet.GetPacketByteSize()), ServerConf.SIZE_PACKET_LENGTH);
-                sendSizePacket.SetPacket(Preamble.ToPreamblePacket(packet.GetPacketByteSize()), 0, Preamble.SIZE_PACKET_LENGTH);
+                sendSizePacket.SetPacket(Preamble.ToPreamblePacket(packet.PacketByteSize), 0, Preamble.SIZE_PACKET_LENGTH);
                 if (m_sendEvent.TryLock())
                 {
-                    try { m_client.Client.BeginSend(sendSizePacket.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
+                    try { m_client.Client.BeginSend(sendSizePacket.PacketRaw, 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -610,7 +610,7 @@ namespace EpServerEngine.cs
         private void startReceive()
         {
             PacketTransporter transport = new PacketTransporter(PacketType.SIZE, m_recvSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, this);
-            try { m_client.Client.BeginReceive(m_recvSizePacket.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport); }
+            try { m_client.Client.BeginReceive(m_recvSizePacket.PacketRaw, 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport); }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -644,7 +644,7 @@ namespace EpServerEngine.cs
             {
                 transport.m_offset = transport.m_offset + readSize;
                 transport.m_size = transport.m_size - readSize;
-                try{socket.BeginReceive(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);}
+                try{socket.BeginReceive(transport.m_packet.PacketRaw, transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);}
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -655,24 +655,24 @@ namespace EpServerEngine.cs
             {
                 if (transport.m_packetType == PacketType.SIZE)
                 {
-                    //int shouldReceive = BitConverter.ToInt32(transport.m_packet.GetPacket(), 0);
-                    int shouldReceive = Preamble.ToShouldReceive(transport.m_packet.GetPacket());
+                    //int shouldReceive = BitConverter.ToInt32(transport.m_packet.PacketRaw, 0);
+                    int shouldReceive = Preamble.ToShouldReceive(transport.m_packet.PacketRaw);
                   
                     // preamble packet is corrupted
                     // try to receive another byte to check preamble
                     if (shouldReceive < 0)
                     {
-                        int preambleOffset = Preamble.CheckPreamble(transport.m_packet.GetPacket());
+                        int preambleOffset = Preamble.CheckPreamble(transport.m_packet.PacketRaw);
                         // set offset to length - preamble offset
-                        transport.m_offset = transport.m_packet.GetPacketByteSize() - preambleOffset;
+                        transport.m_offset = transport.m_packet.PacketByteSize - preambleOffset;
                         // need to receive as much as preamble offset
                         transport.m_size = preambleOffset;
                         try
                         {
                             // shift to left by preamble offset
-                            Buffer.BlockCopy(transport.m_packet.GetPacket(), preambleOffset, transport.m_packet.GetPacket(), 0, transport.m_packet.GetPacketByteSize() - preambleOffset);
+                            Buffer.BlockCopy(transport.m_packet.PacketRaw, preambleOffset, transport.m_packet.PacketRaw, 0, transport.m_packet.PacketByteSize - preambleOffset);
                             // receive rest of bytes at the end
-                            socket.BeginReceive(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);
+                            socket.BeginReceive(transport.m_packet.PacketRaw, transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), transport);
                         }
                         catch (Exception ex)
                         {
@@ -683,7 +683,7 @@ namespace EpServerEngine.cs
                     }
                     Packet recvPacket = new Packet(null, shouldReceive);
                     PacketTransporter dataTransport = new PacketTransporter(PacketType.DATA, recvPacket, 0, shouldReceive, transport.m_iocpTcpClient);
-                    try{socket.BeginReceive(recvPacket.GetPacket(), 0, shouldReceive, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), dataTransport);}
+                    try { socket.BeginReceive(recvPacket.PacketRaw, 0, shouldReceive, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), dataTransport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace); 
@@ -693,7 +693,7 @@ namespace EpServerEngine.cs
                 else
                 {
                     PacketTransporter sizeTransport = new PacketTransporter(PacketType.SIZE, transport.m_iocpTcpClient.m_recvSizePacket, 0, Preamble.SIZE_PACKET_LENGTH, transport.m_iocpTcpClient);
-                    try { socket.BeginReceive(sizeTransport.m_packet.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
+                    try { socket.BeginReceive(sizeTransport.m_packet.PacketRaw, 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onReceived), sizeTransport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -730,7 +730,7 @@ namespace EpServerEngine.cs
             {
                 transport.m_offset = transport.m_offset + sentSize;
                 transport.m_size = transport.m_size - sentSize;
-                try { socket.BeginSend(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
+                try { socket.BeginSend(transport.m_packet.PacketRaw, transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -744,10 +744,10 @@ namespace EpServerEngine.cs
                 if (transport.m_packetType == PacketType.SIZE)
                 {
                     transport.m_packet = transport.m_dataPacket;
-                    transport.m_offset = transport.m_dataPacket.GetOffset(); ;
+                    transport.m_offset = transport.m_dataPacket.PacketOffset; ;
                     transport.m_packetType = PacketType.DATA;
-                    transport.m_size = transport.m_dataPacket.GetPacketByteSize();
-                    try { socket.BeginSend(transport.m_packet.GetPacket(), transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
+                    transport.m_size = transport.m_dataPacket.PacketByteSize;
+                    try { socket.BeginSend(transport.m_packet.PacketRaw, transport.m_offset, transport.m_size, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), transport); }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -769,7 +769,7 @@ namespace EpServerEngine.cs
                     }
                     if (delayedTransport != null)
                     {
-                        try { socket.BeginSend(delayedTransport.m_packet.GetPacket(), 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), delayedTransport); }
+                        try { socket.BeginSend(delayedTransport.m_packet.PacketRaw, 0, Preamble.SIZE_PACKET_LENGTH, SocketFlags.None, new AsyncCallback(IocpTcpClient.onSent), delayedTransport); }
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message + " >" + ex.StackTrace);
