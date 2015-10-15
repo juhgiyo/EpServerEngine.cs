@@ -161,6 +161,13 @@ namespace EpServerEngine.cs
                     return m_hostName;
                 }
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_hostName = value;
+                }
+            }
         }
 
         /// <summary>
@@ -174,6 +181,13 @@ namespace EpServerEngine.cs
                 lock (m_generalLock)
                 {
                     return m_port;
+                }
+            }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_port = value;
                 }
             }
         }
@@ -191,6 +205,13 @@ namespace EpServerEngine.cs
                     return m_noDelay;
                 }
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_noDelay = value;
+                }
+            }
         }
 
         /// <summary>
@@ -205,6 +226,13 @@ namespace EpServerEngine.cs
                     return m_connectionTimeOut;
                 }
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_connectionTimeOut = value;
+                }
+            }
         }
 
         /// <summary>
@@ -217,6 +245,13 @@ namespace EpServerEngine.cs
                 lock (m_generalLock)
                 {
                     return m_callBackObj;
+                }
+            }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_callBackObj = value;
                 }
             }
         }
@@ -251,77 +286,75 @@ namespace EpServerEngine.cs
             ConnectStatus status = ConnectStatus.SUCCESS;
             try
             {
-                lock (m_generalLock)
+
+                if (IsConnectionAlive)
                 {
-                    if (IsConnectionAlive)
-                    {
-                        status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-                        throw new CallbackException();
-                    }
-
-                    m_callBackObj = m_clientOps.CallBackObj;
-                    m_hostName = m_clientOps.HostName;
-                    m_port = m_clientOps.Port;
-                    m_noDelay = m_clientOps.NoDelay;
-                    m_connectionTimeOut = m_clientOps.ConnectionTimeOut;
-
-                    if (m_hostName == null || m_hostName.Length == 0)
-                    {
-                        m_hostName = ServerConf.DEFAULT_HOSTNAME;
-                    }
-
-                    if (m_port == null || m_port.Length == 0)
-                    {
-                        m_port = ServerConf.DEFAULT_PORT;
-                    }
-
-
-                    m_client.NoDelay = m_noDelay;
-
-                    m_client.Client.BeginConnect(m_hostName, Convert.ToInt32(m_port), new AsyncCallback(IocpTcpClient.onConnected), this);
-                    if (m_timeOutEvent.WaitForEvent(m_connectionTimeOut))
-                    {
-                        if (!m_client.Connected)
-                        {
-                            status = ConnectStatus.FAIL_SOCKET_ERROR;
-                            throw new CallbackException();
-                        }
-                        m_isConnected = true;
-                        if (m_callBackObj != null)
-                        {
-                            Thread t = new Thread(delegate()
-                            {
-                                m_callBackObj.OnConnected(this, ConnectStatus.SUCCESS);
-                            });
-                            t.Start();
-                        }
-                           
-                    }
-                    else
-                    {
-                        try
-                        {
-                            m_client.Client.Shutdown(SocketShutdown.Both);
-                            //m_client.Client.Disconnect(true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                        }
-                        m_client.Close();
-                        status = ConnectStatus.FAIL_TIME_OUT;
-                        throw new CallbackException();
-                    }
-              
+                    status = ConnectStatus.FAIL_ALREADY_CONNECTED;
+                    throw new CallbackException();
                 }
+
+                CallBackObj = m_clientOps.CallBackObj;
+                HostName = m_clientOps.HostName;
+                Port = m_clientOps.Port;
+                NoDelay = m_clientOps.NoDelay;
+                ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
+
+                if (HostName == null || HostName.Length == 0)
+                {
+                    HostName = ServerConf.DEFAULT_HOSTNAME;
+                }
+
+                if (Port == null || Port.Length == 0)
+                {
+                    Port = ServerConf.DEFAULT_PORT;
+                }
+
+
+                m_client.NoDelay = NoDelay;
+
+                m_client.Client.BeginConnect(HostName, Convert.ToInt32(Port), new AsyncCallback(IocpTcpClient.onConnected), this);
+                if (m_timeOutEvent.WaitForEvent(ConnectionTimeOut))
+                {
+                    if (!m_client.Connected)
+                    {
+                        status = ConnectStatus.FAIL_SOCKET_ERROR;
+                        throw new CallbackException();
+                    }
+                    IsConnectionAlive = true;
+                    if (CallBackObj != null)
+                    {
+                        Thread t = new Thread(delegate()
+                        {
+                            CallBackObj.OnConnected(this, ConnectStatus.SUCCESS);
+                        });
+                        t.Start();
+                    }
+                           
+                }
+                else
+                {
+                    try
+                    {
+                        m_client.Client.Shutdown(SocketShutdown.Both);
+                        //Client.Client.Disconnect(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                    }
+                    m_client.Close();
+                    status = ConnectStatus.FAIL_TIME_OUT;
+                    throw new CallbackException();
+                }
+              
             }
             catch(CallbackException)
             {
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnConnected(this, status);
+                        CallBackObj.OnConnected(this, status);
                     });
                     t.Start();
                     
@@ -331,11 +364,11 @@ namespace EpServerEngine.cs
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
+                        CallBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
                     });
                     t.Start();
                    
@@ -351,11 +384,8 @@ namespace EpServerEngine.cs
         /// <param name="ops">options for client</param>
         public void Connect(ClientOps ops)
         {
-            lock (m_generalLock)
-            {
-                if (IsConnectionAlive)
-                    return;
-            }
+            if (IsConnectionAlive)
+                return;
             if (ops == null)
                 ops = ClientOps.defaultClientOps;
             if (ops.CallBackObj == null)
@@ -395,32 +425,30 @@ namespace EpServerEngine.cs
         /// </summary>
         public void Disconnect()
         {
-            lock (m_generalLock)
+            if (!IsConnectionAlive)
+                return;
+            try
             {
-                if (!IsConnectionAlive)
-                    return;
-                try
-                {
-                    m_client.Client.Shutdown(SocketShutdown.Both);
-                    //m_client.Client.Disconnect(true);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                }
-                m_client.Close();
-                m_isConnected = false;
+                m_client.Client.Shutdown(SocketShutdown.Both);
+                //m_client.Client.Disconnect(true);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+            }
+            m_client.Close();
+            IsConnectionAlive = false;
+
 
             lock (m_sendQueueLock)
             {
                 m_sendQueue.Clear();
             }
-            if (m_callBackObj != null)
+            if (CallBackObj != null)
             {
                 Thread t = new Thread(delegate()
                 {
-                    m_callBackObj.OnDisconnect(this);
+                    CallBackObj.OnDisconnect(this);
                 });
                 t.Start();
             }
@@ -434,7 +462,11 @@ namespace EpServerEngine.cs
         {
             get
             {
-                return m_isConnected;
+                lock (m_generalLock)
+                {
+                    return m_isConnected;
+                }
+                
                 // 	        try
                 // 	        {
                 // 	            return m_client.Connected;
@@ -445,6 +477,14 @@ namespace EpServerEngine.cs
                 // 	            return false;
                 // 	        }
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_isConnected = value;
+                }
+            }
+
         }
 
         /// <summary>
@@ -456,11 +496,11 @@ namespace EpServerEngine.cs
 
             if (!IsConnectionAlive)
             {
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
+                        CallBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
                     });
                     t.Start();
                 }
@@ -468,11 +508,11 @@ namespace EpServerEngine.cs
             }
             if (packet.PacketByteSize <= 0)
             {
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
+                        CallBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
                     });
                     t.Start();
                 }
@@ -491,8 +531,8 @@ namespace EpServerEngine.cs
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                        if (m_callBackObj != null)
-                            m_callBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR, packet);
+                        if (CallBackObj != null)
+                            CallBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR, packet);
                         Disconnect(); 
                         return; 
                     }
@@ -601,7 +641,7 @@ namespace EpServerEngine.cs
                 m_size = size;
                 m_iocpTcpClient = iocpTcpClient;
                 m_dataPacket = dataPacket;
-                m_callBackObj = iocpTcpClient.m_callBackObj;
+                m_callBackObj = iocpTcpClient.CallBackObj;
             }
         }
         /// <summary>

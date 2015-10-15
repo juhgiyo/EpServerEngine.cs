@@ -102,6 +102,8 @@ namespace EpServerEngine.cs
         /// </summary>
         private bool m_isConnected = false;
 
+        
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -155,34 +157,34 @@ namespace EpServerEngine.cs
                 return m_server;
             }
         }
-        /// <summary>
-        /// Set socket callback interface
-        /// </summary>
-        /// <param name="callBackObj">callback object</param>
-        public void SetSocketCallback(INetworkSocketCallback callBackObj)
+
+        public INetworkSocketCallback CallBackObj
         {
-            m_callBackObj = callBackObj;
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_callBackObj;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_callBackObj = value;
+                }
+            }
         }
-        /// <summary>
-        /// Return the socket callback object
-        /// </summary>
-        /// <returns>the socket callback object</returns>
-        public INetworkSocketCallback GetSocketCallback()
-        {
-            return m_callBackObj;
-        }
+       
         /// <summary>
         /// Start the new connection, and inform the callback object, that the new connection is made
         /// </summary>
         protected override void execute()
         {
-            lock (m_generalLock)
-            {
-                m_isConnected = true;
-            }
+            IsConnectionAlive = true;
             startReceive();
-            if(m_callBackObj!=null) 
-                m_callBackObj.OnNewConnection(this);
+            if (CallBackObj != null)
+                CallBackObj.OnNewConnection(this);
         }
 
         /// <summary>
@@ -190,33 +192,32 @@ namespace EpServerEngine.cs
         /// </summary>
         public void Disconnect()
         {
-            lock (m_generalLock)
+
+            if (!IsConnectionAlive)
+                return;
+            try
             {
-                if (!IsConnectionAlive)
-                    return;
-                try
-                {
-                    m_client.Client.Shutdown(SocketShutdown.Both);
-                    //m_client.Client.Disconnect(true);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                }
-                m_client.Close();
-                m_isConnected = false;
+                m_client.Client.Shutdown(SocketShutdown.Both);
+                //m_client.Client.Disconnect(true);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+            }
+            m_client.Close();
+            IsConnectionAlive = false;
+
             m_server.DetachClient(this);
 
             lock (m_sendQueueLock)
             {
                 m_sendQueue.Clear();
             }
-            if (m_callBackObj != null)
+            if (CallBackObj != null)
             {
                 Thread t = new Thread(delegate()
                 {
-                    m_callBackObj.OnDisconnect(this);
+                    CallBackObj.OnDisconnect(this);
                 });
                 t.Start();
             }
@@ -230,17 +231,26 @@ namespace EpServerEngine.cs
         {
             get
             {
-                return m_isConnected;
-                // 	        try
-                // 	        {
-                // 	            return m_client.Connected;
-                // 	        }
-                // 	        catch (Exception ex)
-                // 	        {
-                // 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                // 	            return false;
-                // 	        }
-
+                lock (m_generalLock)
+                {
+                    return m_isConnected;
+                    // 	        try
+                    // 	        {
+                    // 	            return m_client.Connected;
+                    // 	        }
+                    // 	        catch (Exception ex)
+                    // 	        {
+                    // 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
+                    // 	            return false;
+                    // 	        }
+                }
+            }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_isConnected = value;
+                }
             }
         }
 
@@ -252,11 +262,11 @@ namespace EpServerEngine.cs
         {
             if (!IsConnectionAlive)
             {
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED,packet);
+                        CallBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
                     });
                     t.Start();
                 }
@@ -264,11 +274,11 @@ namespace EpServerEngine.cs
             }
             if (packet.PacketByteSize <= 0)
             {
-                if (m_callBackObj != null)
+                if (CallBackObj != null)
                 {
                     Thread t = new Thread(delegate()
                     {
-                        m_callBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
+                        CallBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
                     });
                     t.Start();
                 }

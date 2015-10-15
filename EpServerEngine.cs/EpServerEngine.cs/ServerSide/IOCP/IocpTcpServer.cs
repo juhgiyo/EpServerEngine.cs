@@ -125,6 +125,13 @@ namespace EpServerEngine.cs
                 }
                 
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_port = value;
+                }
+            }
         }
 
         /// <summary>
@@ -137,6 +144,13 @@ namespace EpServerEngine.cs
                 lock (m_generalLock)
                 {
                     return m_callBackObj;
+                }
+            }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_callBackObj = value;
                 }
             }
         }
@@ -173,20 +187,20 @@ namespace EpServerEngine.cs
             StartStatus status=StartStatus.FAIL_SOCKET_ERROR;
             try
             {
+                if (IsServerStarted)
+                {
+                    status = StartStatus.FAIL_ALREADY_STARTED;
+                    throw new CallbackException();
+                }
+
                 lock (m_generalLock)
                 {
-                    if (IsServerStarted)
-                    {
-                        status = StartStatus.FAIL_ALREADY_STARTED;
-                        throw new CallbackException();
-                    }
+                    CallBackObj = m_serverOps.CallBackObj;
+                    Port = m_serverOps.Port;
 
-                    m_callBackObj = m_serverOps.CallBackObj;
-                    m_port = m_serverOps.Port;
-
-                    if (m_port == null || m_port.Length == 0)
+                    if (Port == null || Port.Length == 0)
                     {
-                        m_port = ServerConf.DEFAULT_PORT;
+                        Port = ServerConf.DEFAULT_PORT;
                     }
                     m_socketList.Clear();
 
@@ -198,7 +212,7 @@ namespace EpServerEngine.cs
             }
             catch (CallbackException)
             {
-                m_callBackObj.OnServerStarted(this, status);
+                CallBackObj.OnServerStarted(this, status);
                 return;
             }
             catch (Exception ex)
@@ -207,10 +221,10 @@ namespace EpServerEngine.cs
                 if (m_listener != null)
                     m_listener.Stop();
                 m_listener = null;
-                m_callBackObj.OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
+                CallBackObj.OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
                 return;
             }
-            m_callBackObj.OnServerStarted(this, StartStatus.SUCCESS);
+            CallBackObj.OnServerStarted(this, StartStatus.SUCCESS);
         }
 
         /// <summary>
@@ -254,14 +268,14 @@ namespace EpServerEngine.cs
             if (client != null)
             {
                 IocpTcpSocket socket = new IocpTcpSocket(client, server);
-                INetworkSocketCallback socketCallbackObj = server.m_callBackObj.OnAccept(server, socket.IPInfo);
+                INetworkSocketCallback socketCallbackObj = server.CallBackObj.OnAccept(server, socket.IPInfo);
                 if (socketCallbackObj == null)
                 {
                     socket.Disconnect();
                 }
                 else
                 {
-                    socket.SetSocketCallback(socketCallbackObj);
+                    socket.CallBackObj=socketCallbackObj;
                     socket.Start();
                     lock (server.m_listLock)
                     {
@@ -294,17 +308,18 @@ namespace EpServerEngine.cs
         /// </summary>
         public void StopServer()
         {
+
+            if (!IsServerStarted)
+                return;
             lock (m_generalLock)
             {
-                if (!IsServerStarted)
-                    return;
                 m_listener.Stop();
                 m_listener = null;
             }
             ShutdownAllClient();
 
-            if(m_callBackObj!=null) 
-                m_callBackObj.OnServerStopped(this);
+            if (CallBackObj != null)
+                CallBackObj.OnServerStopped(this);
         }
 
         /// <summary>
@@ -315,9 +330,12 @@ namespace EpServerEngine.cs
         {
             get
             {
-                if (m_listener != null)
-                    return true;
-                return false;
+                lock (m_generalLock)
+                {
+                    if (m_listener != null)
+                        return true;
+                    return false;
+                }
             }
         }
         /// <summary>
