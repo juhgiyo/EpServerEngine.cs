@@ -46,6 +46,7 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using EpLibrary.cs;
+using System.Threading.Tasks;
 
 namespace EpServerEngine.cs
 {
@@ -216,7 +217,7 @@ namespace EpServerEngine.cs
             }
             if (CallBackObj != null)
             {
-                Thread t = new Thread(delegate()
+                Task t = new Task(delegate()
                 {
                     CallBackObj.OnDisconnect(this);
                 });
@@ -265,7 +266,7 @@ namespace EpServerEngine.cs
             {
                 if (CallBackObj != null)
                 {
-                    Thread t = new Thread(delegate()
+                    Task t = new Task(delegate()
                     {
                         CallBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
                     });
@@ -277,7 +278,7 @@ namespace EpServerEngine.cs
             {
                 if (CallBackObj != null)
                 {
-                    Thread t = new Thread(delegate()
+                    Task t = new Task(delegate()
                     {
                         CallBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
                     });
