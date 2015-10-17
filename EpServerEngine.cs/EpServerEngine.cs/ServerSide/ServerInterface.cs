@@ -261,6 +261,13 @@ namespace EpServerEngine.cs
         /// <returns>the server managing this socket</returns>
         INetworkServer Server { get; }
 
+        /// <summary>
+        /// callback object
+        /// </summary>
+        INetworkSocketCallback CallBackObj
+        {
+            get;
+        }
     }
 
     /// <summary>
