@@ -92,7 +92,7 @@ namespace EpServerEngine.cs
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">noDelay falg</param>
-        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay)
+        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay=true)
         {
             this.Port = port;
             this.CallBackObj = callBackObj;
