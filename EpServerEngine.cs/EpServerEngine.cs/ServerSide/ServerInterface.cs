@@ -69,22 +69,34 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// flag for no delay
+        /// </summary>
+        public bool NoDelay
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public ServerOps()
         {
             CallBackObj = null;
             Port = ServerConf.DEFAULT_PORT;
+            NoDelay = true;
         }
         /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
-        public ServerOps(INetworkServerCallback callBackObj, String port)
+        /// <param name="noDelay">noDelay falg</param>
+        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay)
         {
             this.Port = port;
             this.CallBackObj = callBackObj;
+            this.NoDelay = noDelay;
         }
 
         /// <summary>
@@ -110,6 +122,15 @@ namespace EpServerEngine.cs
         INetworkServerCallback CallBackObj
         {
             get;
+        }
+
+        /// <summary>
+        /// flag for no delay
+        /// </summary>
+        bool NoDelay
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -260,6 +281,11 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <returns>the server managing this socket</returns>
         INetworkServer Server { get; }
+
+        /// <summary>
+        /// No delay flag
+        /// </summary>
+        bool NoDelay { get; set; }
 
         /// <summary>
         /// callback object

@@ -58,6 +58,11 @@ namespace EpServerEngine.cs
         /// port
         /// </summary>
         private String m_port=ServerConf.DEFAULT_PORT;
+
+        /// <summary>
+        /// NoDelay flag
+        /// </summary>
+        private bool m_noDelay = true;
         /// <summary>
         /// listner
         /// </summary>
@@ -154,6 +159,27 @@ namespace EpServerEngine.cs
                 }
             }
         }
+
+        /// <summary>
+        /// No delay property
+        /// </summary>
+        public bool NoDelay
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_noDelay;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_noDelay = value;
+                }
+            }
+        }
         /// <summary>
         /// Callback Exception class
         /// </summary>
@@ -196,8 +222,9 @@ namespace EpServerEngine.cs
                     }
 
                     CallBackObj = m_serverOps.CallBackObj;
+                    NoDelay = m_serverOps.NoDelay;
                     Port = m_serverOps.Port;
-
+                    
                     if (Port == null || Port.Length == 0)
                     {
                         Port = ServerConf.DEFAULT_PORT;

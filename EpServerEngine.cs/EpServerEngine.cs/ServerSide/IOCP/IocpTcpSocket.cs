@@ -103,7 +103,10 @@ namespace EpServerEngine.cs
         /// </summary>
         private bool m_isConnected = false;
 
-        
+        /// <summary>
+        /// flag for no delay
+        /// </summary>
+        private bool m_noDelay = true;
 
         /// <summary>
         /// Default constructor
@@ -114,6 +117,7 @@ namespace EpServerEngine.cs
         {
             m_client=client;
             m_server = server;
+            NoDelay = server.NoDelay;
             IPEndPoint remoteIpEndPoint = m_client.Client.RemoteEndPoint as IPEndPoint;
             IPEndPoint localIpEndPoint = m_client.Client.LocalEndPoint as IPEndPoint;
             if (remoteIpEndPoint != null)
@@ -143,7 +147,10 @@ namespace EpServerEngine.cs
         {
             get
             {
-                return m_ipInfo;
+                lock (m_generalLock)
+                {
+                    return m_ipInfo;
+                }
             }
         }
 
@@ -155,10 +162,37 @@ namespace EpServerEngine.cs
         {
             get
             {
-                return m_server;
+                lock (m_generalLock)
+                {
+                    return m_server;
+                }
             }
         }
 
+        /// <summary>
+        /// Flag for NoDelay
+        /// </summary>
+        public bool NoDelay
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_noDelay;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_noDelay = value;
+                    m_client.NoDelay = m_noDelay;
+                }
+            }
+        }
+        /// <summary>
+        /// callback obj property
+        /// </summary>
         public INetworkSocketCallback CallBackObj
         {
             get
