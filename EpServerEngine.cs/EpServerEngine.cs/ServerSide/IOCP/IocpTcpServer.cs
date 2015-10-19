@@ -67,7 +67,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// maximum socket count
         /// </summary>
-        private int m_maxSocketCount= SocketCount.Infinite;
+        private int m_maxSocketCount = SocketCount.Infinite;
         /// <summary>
         /// listner
         /// </summary>
