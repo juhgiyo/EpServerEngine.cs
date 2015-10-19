@@ -387,20 +387,19 @@ namespace EpServerEngine.cs
         /// <param name="ops">options for client</param>
         public void Connect(ClientOps ops)
         {
-            if (IsConnectionAlive)
-            {
-                ConnectStatus status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-                if (ops.CallBackObj != null)
-                {
-                    Task t = new Task(delegate()
-                    {
-                        ops.CallBackObj.OnConnected(this, status);
-                    });
-                    t.Start();
-
-                }
-                return;
-            }
+//             if (IsConnectionAlive)
+//             {
+//                 ConnectStatus status = ConnectStatus.FAIL_ALREADY_CONNECTED;
+//                 if (ops.CallBackObj != null)
+//                 {
+//                     Task t = new Task(delegate()
+//                     {
+//                         ops.CallBackObj.OnConnected(this, status);
+//                     });
+//                     t.Start();
+// 
+//                 }
+//                 return;
             if (ops == null)
                 ops = ClientOps.defaultClientOps;
             if (ops.CallBackObj == null)
