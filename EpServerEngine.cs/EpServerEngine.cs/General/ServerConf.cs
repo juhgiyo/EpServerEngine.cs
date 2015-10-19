@@ -126,4 +126,11 @@ namespace EpServerEngine.cs
         /// </summary>
         public const String DEFAULT_PORT = "8080";
     }
+
+    public static class SocketCount
+    {
+        public const int Infinite = 0;
+    }
+
 }
+

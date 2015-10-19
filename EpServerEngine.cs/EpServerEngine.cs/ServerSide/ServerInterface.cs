@@ -77,6 +77,12 @@ namespace EpServerEngine.cs
             set;
         }
 
+        public int MaxSocketCount
+        {
+            get;
+            set;
+        } 
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -85,6 +91,7 @@ namespace EpServerEngine.cs
             CallBackObj = null;
             Port = ServerConf.DEFAULT_PORT;
             NoDelay = true;
+            MaxSocketCount = SocketCount.Infinite;
         }
         /// <summary>
         /// Default constructor
@@ -92,11 +99,12 @@ namespace EpServerEngine.cs
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">noDelay falg</param>
-        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay=true)
+        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay=true, int socketCount = SocketCount.Infinite)
         {
             this.Port = port;
             this.CallBackObj = callBackObj;
             this.NoDelay = noDelay;
+            this.MaxSocketCount = socketCount;
         }
 
         /// <summary>

@@ -63,6 +63,11 @@ namespace EpServerEngine.cs
         /// NoDelay flag
         /// </summary>
         private bool m_noDelay = true;
+
+        /// <summary>
+        /// maximum socket count
+        /// </summary>
+        private int m_maxSocketCount= SocketCount.Infinite;
         /// <summary>
         /// listner
         /// </summary>
@@ -180,6 +185,27 @@ namespace EpServerEngine.cs
                 }
             }
         }
+
+        /// <summary>
+        /// maximum socket count property
+        /// </summary>
+        public int MaxSocketCount
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_maxSocketCount;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_maxSocketCount = value;
+                }
+            }
+        }
         /// <summary>
         /// Callback Exception class
         /// </summary>
@@ -224,6 +250,7 @@ namespace EpServerEngine.cs
                     CallBackObj = m_serverOps.CallBackObj;
                     NoDelay = m_serverOps.NoDelay;
                     Port = m_serverOps.Port;
+                    MaxSocketCount = m_serverOps.MaxSocketCount;
                     
                     if (Port == null || Port.Length == 0)
                     {
@@ -296,6 +323,15 @@ namespace EpServerEngine.cs
             if (client != null)
             {
                 IocpTcpSocket socket = new IocpTcpSocket(client, server);
+                lock (server.m_listLock)
+                {
+                    if (server.MaxSocketCount!=SocketCount.Infinite && server.m_socketList.Count>server.MaxSocketCount)
+                    {
+                        socket.Disconnect();
+                        return;
+                    }
+                }
+                
                 INetworkSocketCallback socketCallbackObj = server.CallBackObj.OnAccept(server, socket.IPInfo);
                 if (socketCallbackObj == null)
                 {
