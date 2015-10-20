@@ -130,6 +130,7 @@ namespace EpServerEngine.cs
         INetworkServerCallback CallBackObj
         {
             get;
+            set;
         }
 
         /// <summary>
@@ -342,6 +343,7 @@ namespace EpServerEngine.cs
         INetworkSocketCallback CallBackObj
         {
             get;
+            set;
         }
 
         /// <summary>

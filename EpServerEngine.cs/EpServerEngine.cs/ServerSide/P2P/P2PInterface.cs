@@ -1,9 +1,9 @@
 ﻿/*! 
-@file RoomInterface.cs
+@file P2PInterface.cs
 @author Woong Gyu La a.k.a Chris. <juhgiyo@gmail.com>
 		<http://github.com/juhgiyo/epserverengine.cs>
 @date April 01, 2014
-@brief Room Interface
+@brief P2P Interface
 @version 2.0
 
 @section LICENSE
@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 @section DESCRIPTION
 
-A Room Interface.
+A P2P Interface.
 
 */
 using System;
@@ -42,40 +42,50 @@ using System.Text;
 
 namespace EpServerEngine.cs
 {
-    public interface IRoom
+    /// <summary>
+    /// P2P interface
+    /// </summary>
+    public interface IP2P
     {
-        string RoomName
+        /// <summary>
+        /// flag whether P2P is paired
+        /// </summary>
+        bool Paired
         {
             get;
         }
-        
         /// <summary>
-        /// Return the client socket list
+        /// callback object
         /// </summary>
-        /// <returns>the client socket list</returns>
-        List<INetworkSocket> GetSocketList();
-
+        IP2PCallback CallBackObj
+        {
+            get;
+            set;
+        }
         /// <summary>
-        /// Broadcast the given packet to all the client, connected
+        /// Connect given two socket as p2p
         /// </summary>
-        /// <param name="packet">packet to broadcast</param>
-        void Broadcast(Packet packet);
-        
-
+        /// <param name="socket1">first socket</param>
+        /// <param name="socket2">second socket</param>
+        /// <param name="callback">callback object</param>
+        /// <returns>true if paired otherwise false</returns>
+        bool ConnectPair(INetworkSocket socket1, INetworkSocket socket2, IP2PCallback callback);
         /// <summary>
-        /// Broadcast the given packet to all the client, connected
+        /// Detach pair
         /// </summary>
-        /// <param name="data">data in byte array</param>
-        /// <param name="offset">offset in bytes</param>
-        /// <param name="dataSize">data size in bytes</param>
-        void Broadcast(byte[] data, int offset, int dataSize);
-        
-
+        void DetachPair();
+    }
+    /// <summary>
+    /// P2P callback interface
+    /// </summary>
+    public interface IP2PCallback
+    {
         /// <summary>
-        /// Broadcast the given packet to all the client, connected
+        /// Called when p2p is detached
         /// </summary>
-        /// <param name="data">data in byte array</param>
-        void Broadcast(byte[] data);
-
+        /// <param name="p2p">p2p instance</param>
+        /// <param name="socket1">first socket</param>
+        /// <param name="socket2">second socket</param>
+        void OnDetached(IP2P p2p, INetworkSocket socket1, INetworkSocket socket2);
     }
 }

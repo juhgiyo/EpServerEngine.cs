@@ -166,7 +166,7 @@ namespace EpServerEngine.cs
                     return m_callBackObj;
                 }
             }
-            private set
+            set
             {
                 lock (m_generalLock)
                 {
@@ -284,7 +284,8 @@ namespace EpServerEngine.cs
             }
             catch (CallbackException)
             {
-                CallBackObj.OnServerStarted(this, status);
+                if (CallBackObj != null)
+                    CallBackObj.OnServerStarted(this, status);
                 return;
             }
             catch (Exception ex)
@@ -293,10 +294,12 @@ namespace EpServerEngine.cs
                 if (m_listener != null)
                     m_listener.Stop();
                 m_listener = null;
-                CallBackObj.OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
+                if (CallBackObj != null)
+                    CallBackObj.OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
                 return;
             }
-            CallBackObj.OnServerStarted(this, StartStatus.SUCCESS);
+            if (CallBackObj != null)
+                CallBackObj.OnServerStarted(this, StartStatus.SUCCESS);
         }
 
         /// <summary>
@@ -348,7 +351,11 @@ namespace EpServerEngine.cs
                         return;
                     }
                 }
-                
+                if (server.CallBackObj == null)
+                {
+                    socket.Disconnect();
+                    return;
+                }
                 INetworkSocketCallback socketCallbackObj = server.CallBackObj.OnAccept(server, socket.IPInfo);
                 if (socketCallbackObj == null)
                 {

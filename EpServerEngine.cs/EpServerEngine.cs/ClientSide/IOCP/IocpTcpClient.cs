@@ -248,7 +248,7 @@ namespace EpServerEngine.cs
                     return m_callBackObj;
                 }
             }
-            private set
+            set
             {
                 lock (m_generalLock)
                 {

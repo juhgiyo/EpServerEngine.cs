@@ -50,6 +50,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerSide\IOCP\IocpTcpServer.cs" />
     <Compile Include="ServerSide\IOCP\IocpTcpSocket.cs" />
+    <Compile Include="ServerSide\P2P\P2P.cs" />
+    <Compile Include="ServerSide\P2P\P2PInterface.cs" />
     <Compile Include="ServerSide\Room\Room.cs" />
     <Compile Include="ServerSide\Room\RoomInterface.cs" />
     <Compile Include="ServerSide\ServerInterface.cs" />

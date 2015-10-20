@@ -161,6 +161,7 @@ namespace EpServerEngine.cs
         INetworkClientCallback CallBackObj
         {
             get;
+            set;
         }
 
 
