@@ -195,6 +195,46 @@ namespace EpServerEngine.cs
         /// <returns>true if successful, otherwise false</returns>
         bool DetachClient(IocpTcpSocket clientSocket);
 
+        /// <summary>
+        /// Return the room instance of given room name
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>the room instance</returns>
+        IRoom GetRoom(string roomName);
+
+        /// <summary>
+        /// Return the list of names of the room
+        /// </summary>
+        List<string> RoomNames { get; }
+
+        /// <summary>
+        /// Return the list of rooms
+        /// </summary>
+        List<IRoom> Rooms { get; }
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="packet">packet to broadcast</param>
+        void Broadcast(string roomName, Packet packet);
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        void Broadcast(string roomName, byte[] data, int offset, int dataSize);
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        void Broadcast(string roomName, byte[] data);
+
+
     }
 
     /// <summary>
@@ -278,6 +318,7 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         void Broadcast(byte[] data);
 
+
         /// <summary>
         /// Return the IP information of the client
         /// </summary>
@@ -302,6 +343,59 @@ namespace EpServerEngine.cs
         {
             get;
         }
+
+        /// <summary>
+        /// Return the room instance of given room name
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>the room instance</returns>
+        IRoom GetRoom(string roomName);
+
+        /// <summary>
+        /// Return the list of names of the room
+        /// </summary>
+        List<string> RoomNames { get; }
+
+        /// <summary>
+        /// Return the list of rooms
+        /// </summary>
+        List<IRoom> Rooms { get; }
+
+          /// <summary>
+        /// Join the room
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>the instance of the room</returns>
+        void Join(string roomName);
+        
+        /// <summary>
+        /// Detach given socket from the given room
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>number of sockets left in the room</returns>
+        void Leave(string roomName);
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="packet">packet to broadcast</param>
+        void Broadcast(string roomName, Packet packet);
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        void Broadcast(string roomName, byte[] data, int offset, int dataSize);
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        void Broadcast(string roomName, byte[] data);
     }
 
     /// <summary>

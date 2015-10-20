@@ -80,6 +80,11 @@ namespace EpServerEngine.cs
         /// </summary>
         private Object m_sendQueueLock = new Object();
         /// <summary>
+        /// client socket room lock
+        /// </summary>
+        private Object m_roomLock = new Object();
+
+        /// <summary>
         /// send queue
         /// </summary>
         private Queue<PacketTransporter> m_sendQueue = new Queue<PacketTransporter>();
@@ -107,6 +112,12 @@ namespace EpServerEngine.cs
         /// flag for no delay
         /// </summary>
         private bool m_noDelay = true;
+
+
+        /// <summary>
+        /// room list
+        /// </summary>
+        private Dictionary<string, Room> m_roomMap = new Dictionary<string, Room>();
 
         /// <summary>
         /// Default constructor
@@ -244,6 +255,16 @@ namespace EpServerEngine.cs
                 IsConnectionAlive = false;
             }
             m_server.DetachClient(this);
+
+            List<IRoom> roomList = Rooms;
+            foreach (IRoom room in roomList)
+            {
+                ((IocpTcpServer)m_server).Leave(this, room.RoomName);
+            }
+            lock (m_roomLock)
+            {
+                m_roomMap.Clear();
+            }
 
             lock (m_sendQueueLock)
             {
@@ -676,6 +697,135 @@ namespace EpServerEngine.cs
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Return the room instance of given room name
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>the room instance</returns>
+        public IRoom GetRoom(string roomName)
+        {
+            lock (m_roomLock)
+            {
+                if (m_roomMap.ContainsKey(roomName))
+                    return m_roomMap[roomName];
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Return the list of names of the room
+        /// </summary>
+        public List<string> RoomNames
+        {
+            get
+            {
+                lock (m_roomLock)
+                {
+                    return new List<string>(m_roomMap.Keys);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return the list of rooms
+        /// </summary>
+        public List<IRoom> Rooms
+        {
+            get
+            {
+                lock (m_roomLock)
+                {
+                    return new List<IRoom>(m_roomMap.Values);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Join the room
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>the instance of the room</returns>
+        public void Join(string roomName)
+        {
+            lock (m_roomLock)
+            {
+                Room curRoom = ((IocpTcpServer)m_server).Join(this, roomName);
+                if (!m_roomMap.ContainsKey(roomName))
+                {
+                    m_roomMap[roomName]=curRoom;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detach given socket from the given room
+        /// </summary>
+        /// <param name="roomName">room name</param>
+        /// <returns>number of sockets left in the room</returns>
+        public void Leave(string roomName)
+        {
+            lock (m_roomLock)
+            {
+                if (m_roomMap.ContainsKey(roomName))
+                {
+                    int numSocketLeft = ((IocpTcpServer)m_server).Leave(this,roomName);
+                    if (numSocketLeft == 0)
+                    {
+                        m_roomMap.Remove(roomName);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="packet">packet to broadcast</param>
+        public void Broadcast(string roomName, Packet packet)
+        {
+            lock (m_roomLock)
+            {
+                if (m_roomMap.ContainsKey(roomName))
+                {
+                    m_roomMap[roomName].Broadcast(packet);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Broadcast(string roomName, byte[] data, int offset, int dataSize)
+        {
+            lock (m_roomLock)
+            {
+                if (m_roomMap.ContainsKey(roomName))
+                {
+                    m_roomMap[roomName].Broadcast(data, offset, dataSize);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        public void Broadcast(string roomName, byte[] data)
+        {
+            lock (m_roomLock)
+            {
+                if (m_roomMap.ContainsKey(roomName))
+                {
+                    m_roomMap[roomName].Broadcast(data);
+                }
+            }
         }
 
     }
