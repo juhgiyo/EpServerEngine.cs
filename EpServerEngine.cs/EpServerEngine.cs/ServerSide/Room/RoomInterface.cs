@@ -88,7 +88,54 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         void Broadcast(byte[] data);
 
+        /// <summary>
+        /// OnCreated event
+        /// </summary>
+        OnRoomCreatedDelegate OnCreated
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnJoin event
+        /// </summary>
+        OnRoomJoinDelegate OnJoin
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnLeave event
+        /// </summary>
+        OnRoomLeaveDelegate OnLeave
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnBroadcast event
+        /// </summary>
+        OnRoomBroadcastDelegate OnBroadcast
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnDestroy event
+        /// </summary>
+        OnRoomDestroyDelegate OnDestroy
+        {
+            get;
+            set;
+        }
+
     }
+
+        public delegate void OnRoomCreatedDelegate(IRoom room);
+        public delegate void OnRoomJoinDelegate(IRoom room, INetworkSocket socket);
+        public delegate void OnRoomLeaveDelegate(IRoom room, INetworkSocket socket);
+        public delegate void OnRoomBroadcastDelegate(IRoom room, Packet packet);
+        public delegate void OnRoomDestroyDelegate(IRoom room);
 
     public interface IRoomCallback
     {

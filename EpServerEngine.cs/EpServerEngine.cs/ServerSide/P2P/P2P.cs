@@ -73,6 +73,38 @@ namespace EpServerEngine.cs
         IP2PCallback m_callBackObj;
 
         /// <summary>
+        /// OnDetached event
+        /// </summary>
+        OnP2PDetachedDelegate m_onDetached = delegate { };
+
+        /// <summary>
+        /// OnDetached event
+        /// </summary>
+        public OnP2PDetachedDelegate OnDetached
+        {
+            get
+            {
+                return m_onDetached;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onDetached = delegate { };
+                }
+                else
+                {
+                    m_onDetached = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// OnDetached event
+        /// </summary>
+        OnP2PDetachedDelegate OnDetachedDefault = delegate { };
+
+        /// <summary>
         /// flag whether P2P is paired
         /// </summary>
         public bool Paired
@@ -109,7 +141,15 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
+                    if (m_callBackObj != null)
+                    {
+                        OnDetachedDefault -= m_callBackObj.OnDetached;
+                    }
                     m_callBackObj = value;
+                    if (m_callBackObj != null)
+                    {
+                        OnDetachedDefault += m_callBackObj.OnDetached;
+                    }
                 }
             }
         }
@@ -164,18 +204,14 @@ namespace EpServerEngine.cs
                     if (m_socket2 != null)
                         m_socket2.CallBackObj = null;
                     Paired = false;
-                    if (CallBackObj != null)
+                    
+                    Task t = new Task(delegate()
                     {
-                        if (CallBackObj != null)
-                            {
-                                Task t = new Task(delegate()
-                                {
-                                    CallBackObj.OnDetached(this, m_socket1, m_socket2);
-                                });
-                                t.Start();
-                            }
-                 
-                    }
+                        OnDetachedDefault(this, m_socket1, m_socket2);
+                        OnDetached(this, m_socket1, m_socket2);
+                    });
+                    t.Start();
+                    
                     m_socket1 = null;
                     m_socket2 = null;
                 }

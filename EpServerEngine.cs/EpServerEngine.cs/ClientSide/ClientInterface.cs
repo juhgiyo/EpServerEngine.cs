@@ -46,6 +46,8 @@ using System.Threading;
 
 namespace EpServerEngine.cs
 {
+
+ 
     /// <summary>
     /// Client Option class
     /// </summary>
@@ -164,6 +166,38 @@ namespace EpServerEngine.cs
             set;
         }
 
+        /// <summary>
+        /// OnConnected event
+        /// </summary>
+        OnClientConnectedDelegate OnConnected
+        {
+            get;set;
+        }
+        /// <summary>
+        /// OnRecevied event
+        /// </summary>
+        OnClientReceivedDelegate OnReceived
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnSent event
+        /// </summary>
+        OnClientSentDelegate OnSent
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnDisconnect event
+        /// </summary>
+        OnClientDisconnectDelegate OnDisconnect
+        {
+            get;
+            set;
+        }
+
 
         /// <summary>
         /// Connect to server with given option
@@ -204,6 +238,11 @@ namespace EpServerEngine.cs
 
         
     }
+
+    public delegate void OnClientConnectedDelegate(INetworkClient client, ConnectStatus status);
+    public delegate void OnClientReceivedDelegate(INetworkClient client, Packet receivedPacket);
+    public delegate void OnClientSentDelegate(INetworkClient client, SendStatus status, Packet sentPacket);
+    public delegate void OnClientDisconnectDelegate(INetworkClient client);
 
 	public interface INetworkClientCallback{
         /// <summary>

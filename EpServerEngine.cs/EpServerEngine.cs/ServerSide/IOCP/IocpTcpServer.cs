@@ -112,6 +112,92 @@ namespace EpServerEngine.cs
         private Dictionary<string, Room> m_roomMap = new Dictionary<string, Room>();
 
         /// <summary>
+        /// OnServerStarted event
+        /// </summary>
+        OnServerStartedDelegate m_onServerStarted = delegate { };
+        /// <summary>
+        ///  OnAccept event
+        /// </summary>
+        OnServerAcceptDelegate m_onAccept = delegate { };
+        /// <summary>
+        /// OnserverStopped event
+        /// </summary>
+        OnServerStoppedDelegate m_onServerStopped = delegate { };
+
+        /// <summary>
+        /// OnServerStarted event
+        /// </summary>
+        public OnServerStartedDelegate OnServerStarted
+        {
+            get
+            {
+                return m_onServerStarted;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onServerStarted = delegate { };
+                }
+                else
+                {
+                    m_onServerStarted = value;
+                }
+            }
+        }
+        /// <summary>
+        ///  OnAccept event
+        /// </summary>
+        public OnServerAcceptDelegate OnAccept
+        {
+            get
+            {
+                return m_onAccept;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onAccept = delegate { };
+                }
+                else
+                {
+                    m_onAccept = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnserverStopped event
+        /// </summary>
+        public OnServerStoppedDelegate OnServerStopped
+        {
+            get
+            {
+                return m_onServerStopped;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onServerStopped = delegate { };
+                }
+                else
+                {
+                    m_onServerStopped = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// OnServerStarted event
+        /// </summary>
+        OnServerStartedDelegate OnServerStartedDefault = delegate { };
+        /// <summary>
+        /// OnserverStopped event
+        /// </summary>
+        OnServerStoppedDelegate OnServerStoppedDefault = delegate { };
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public IocpTcpServer()
@@ -175,7 +261,17 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
+                    if (m_callBackObj != null)
+                    {
+                        OnServerStartedDefault -= m_callBackObj.OnServerStarted;
+                        OnServerStoppedDefault -= m_callBackObj.OnServerStopped;
+                    }
                     m_callBackObj = value;
+                    if (m_callBackObj != null)
+                    {
+                        OnServerStartedDefault += m_callBackObj.OnServerStarted;
+                        OnServerStoppedDefault += m_callBackObj.OnServerStopped;
+                    }
                 }
             }
         }
@@ -311,8 +407,8 @@ namespace EpServerEngine.cs
             }
             catch (CallbackException)
             {
-                if (CallBackObj != null)
-                    CallBackObj.OnServerStarted(this, status);
+                OnServerStartedDefault(this, status);
+                OnServerStarted(this, status);
                 return;
             }
             catch (Exception ex)
@@ -321,12 +417,12 @@ namespace EpServerEngine.cs
                 if (m_listener != null)
                     m_listener.Stop();
                 m_listener = null;
-                if (CallBackObj != null)
-                    CallBackObj.OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
+                OnServerStartedDefault(this, StartStatus.FAIL_SOCKET_ERROR);
+                OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
                 return;
             }
-            if (CallBackObj != null)
-                CallBackObj.OnServerStarted(this, StartStatus.SUCCESS);
+            OnServerStartedDefault(this, StartStatus.SUCCESS);
+            OnServerStarted(this, StartStatus.SUCCESS);
         }
 
         /// <summary>
@@ -396,6 +492,7 @@ namespace EpServerEngine.cs
                     {
                         server.m_socketList.Add(socket);
                     }
+                    server.OnAccept(server, socket.IPInfo);
                 }
             }
            
@@ -410,8 +507,8 @@ namespace EpServerEngine.cs
         {
             if (ops == null)
                 ops = ServerOps.defaultServerOps;
-//             if (ops.CallBackObj == null)
-//                 throw new NullReferenceException("callBackObj is null!");
+            if (ops.CallBackObj == null)
+                throw new NullReferenceException("callBackObj is null!");
             lock (m_generalLock)
             {
                 m_serverOps = ops;
@@ -433,8 +530,8 @@ namespace EpServerEngine.cs
             }
             ShutdownAllClient();
 
-            if (CallBackObj != null)
-                CallBackObj.OnServerStopped(this);
+            OnServerStoppedDefault(this);
+            OnServerStopped(this);
         }
 
         /// <summary>

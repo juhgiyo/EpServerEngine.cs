@@ -62,6 +62,16 @@ namespace EpServerEngine.cs
             get;
             set;
         }
+
+        /// <summary>
+        /// OnDetached event
+        /// </summary>
+        OnP2PDetachedDelegate OnDetached
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Connect given two socket as p2p
         /// </summary>
@@ -75,6 +85,9 @@ namespace EpServerEngine.cs
         /// </summary>
         void DetachPair();
     }
+
+    public delegate void OnP2PDetachedDelegate(IP2P p2p, INetworkSocket socket1, INetworkSocket socket2);
+
     /// <summary>
     /// P2P callback interface
     /// </summary>

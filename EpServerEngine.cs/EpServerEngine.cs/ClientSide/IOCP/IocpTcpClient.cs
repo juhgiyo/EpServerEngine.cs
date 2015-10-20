@@ -126,6 +126,126 @@ namespace EpServerEngine.cs
         private bool m_isConnected = false;
 
         /// <summary>
+        /// OnConnected event
+        /// </summary>
+        OnClientConnectedDelegate m_onConnected = delegate { };
+        /// <summary>
+        /// OnRecevied event
+        /// </summary>
+        OnClientReceivedDelegate m_onReceived = delegate { };
+        /// <summary>
+        /// OnSent event
+        /// </summary>
+        OnClientSentDelegate m_onSent = delegate { };
+        /// <summary>
+        /// OnDisconnect event
+        /// </summary>
+        OnClientDisconnectDelegate m_onDisconnect = delegate { };
+
+
+        /// <summary>
+        /// OnConnected event
+        /// </summary>
+        public OnClientConnectedDelegate OnConnected
+        {
+            get
+            {
+                return m_onConnected;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onConnected = delegate { };
+                }
+                else
+                {
+                    m_onConnected = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnRecevied event
+        /// </summary>
+        public OnClientReceivedDelegate OnReceived
+        {
+            get
+            {
+                return m_onReceived;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onReceived = delegate { };
+                }
+                else
+                {
+                    m_onReceived = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnSent event
+        /// </summary>
+        public OnClientSentDelegate OnSent
+        {
+            get
+            {
+                return m_onSent;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onSent = delegate { };
+                }
+                else
+                {
+                    m_onSent = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnDisconnect event
+        /// </summary>
+        public OnClientDisconnectDelegate OnDisconnect
+        {
+            get
+            {
+                return m_onDisconnect;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onDisconnect = delegate { };
+                }
+                else
+                {
+                    m_onDisconnect = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// OnConnected event
+        /// </summary>
+        OnClientConnectedDelegate OnConnectedDefault = delegate { };
+        /// <summary>
+        /// OnRecevied event
+        /// </summary>
+        OnClientReceivedDelegate OnReceivedDefault = delegate { };
+        /// <summary>
+        /// OnSent event
+        /// </summary>
+        OnClientSentDelegate OnSentDefault = delegate { };
+        /// <summary>
+        /// OnDisconnect event
+        /// </summary>
+        OnClientDisconnectDelegate OnDisconnectDefault = delegate { };
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public IocpTcpClient():base()
@@ -251,7 +371,21 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
+                    if (m_callBackObj != null)
+                    {
+                        OnConnectedDefault -= m_callBackObj.OnConnected;
+                        OnSentDefault -= m_callBackObj.OnSent;
+                        OnReceivedDefault -= m_callBackObj.OnReceived;
+                        OnDisconnectDefault -= m_callBackObj.OnDisconnect;
+                    }
                     m_callBackObj = value;
+                    if (m_callBackObj != null)
+                    {
+                        OnConnectedDefault += m_callBackObj.OnConnected;
+                        OnSentDefault += m_callBackObj.OnSent;
+                        OnReceivedDefault += m_callBackObj.OnReceived;
+                        OnDisconnectDefault += m_callBackObj.OnDisconnect;
+                    }
                 }
             }
         }
@@ -323,14 +457,13 @@ namespace EpServerEngine.cs
                             throw new CallbackException();
                         }
                         IsConnectionAlive = true;
-                        if (CallBackObj != null)
+                        Task t = new Task(delegate()
                         {
-                            Task t = new Task(delegate()
-                            {
-                                CallBackObj.OnConnected(this, ConnectStatus.SUCCESS);
-                            });
-                            t.Start();
-                        }
+                            OnConnectedDefault(this, ConnectStatus.SUCCESS);
+                            OnConnected(this, ConnectStatus.SUCCESS);
+                        });
+                        t.Start();
+
 
                     }
                     else
@@ -352,29 +485,23 @@ namespace EpServerEngine.cs
             }
             catch(CallbackException)
             {
-                if (CallBackObj != null)
+                Task t = new Task(delegate()
                 {
-                    Task t = new Task(delegate()
-                    {
-                        CallBackObj.OnConnected(this, status);
-                    });
-                    t.Start();
-                    
-                }
+                    OnConnectedDefault(this, status);
+                    OnConnected(this, status);
+                });
+                t.Start();
                 return;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                if (CallBackObj != null)
+                Task t = new Task(delegate()
                 {
-                    Task t = new Task(delegate()
-                    {
-                        CallBackObj.OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
-                    });
-                    t.Start();
-                   
-                }
+                    OnConnectedDefault(this, ConnectStatus.FAIL_SOCKET_ERROR);
+                    OnConnected(this, ConnectStatus.FAIL_SOCKET_ERROR);
+                });
+                t.Start();
                 return;
             }
             startReceive();
@@ -414,8 +541,6 @@ namespace EpServerEngine.cs
                 return;
             }
             tcpclient.m_timeOutEvent.SetEvent();
-            //if (tcpclient.m_callBackObj != null) 
-            //    tcpclient.m_callBackObj.OnConnected(tcpclient, ConnectStatus.SUCCESS);
             return;
           
         }
@@ -446,14 +571,14 @@ namespace EpServerEngine.cs
             {
                 m_sendQueue.Clear();
             }
-            if (CallBackObj != null)
+            
+            Task t = new Task(delegate()
             {
-                Task t = new Task(delegate()
-                {
-                    CallBackObj.OnDisconnect(this);
-                });
-                t.Start();
-            }
+                OnDisconnectDefault(this);
+                OnDisconnect(this);
+            });
+            t.Start();
+            
         }
 
         /// <summary>
@@ -468,16 +593,6 @@ namespace EpServerEngine.cs
                 {
                     return m_isConnected;
                 }
-                
-                // 	        try
-                // 	        {
-                // 	            return m_client.Connected;
-                // 	        }
-                // 	        catch (Exception ex)
-                // 	        {
-                // 	            Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                // 	            return false;
-                // 	        }
             }
             private set
             {
@@ -498,26 +613,25 @@ namespace EpServerEngine.cs
 
             if (!IsConnectionAlive)
             {
-                if (CallBackObj != null)
+                
+                Task t = new Task(delegate()
                 {
-                    Task t = new Task(delegate()
-                    {
-                        CallBackObj.OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
-                    });
-                    t.Start();
-                }
+                    OnSentDefault(this, SendStatus.FAIL_NOT_CONNECTED, packet);
+                    OnSent(this, SendStatus.FAIL_NOT_CONNECTED, packet);
+                });
+                t.Start();
+                
                 return;
             }
             if (packet.PacketByteSize <= 0)
             {
-                if (CallBackObj != null)
+                
+                Task t = new Task(delegate()
                 {
-                    Task t = new Task(delegate()
-                    {
-                        CallBackObj.OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
-                    });
-                    t.Start();
-                }
+                    OnSentDefault(this, SendStatus.FAIL_INVALID_PACKET, packet);
+                    OnSent(this, SendStatus.FAIL_INVALID_PACKET, packet);
+                });
+                t.Start();
                 return;
             }
 
@@ -533,8 +647,8 @@ namespace EpServerEngine.cs
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                        if (CallBackObj != null)
-                            CallBackObj.OnSent(this, SendStatus.FAIL_SOCKET_ERROR, packet);
+                        OnSentDefault(this, SendStatus.FAIL_SOCKET_ERROR, packet);
+                        OnSent(this, SendStatus.FAIL_SOCKET_ERROR, packet);
                         Disconnect(); 
                         return; 
                     }
@@ -623,10 +737,6 @@ namespace EpServerEngine.cs
             /// </summary>
             public PacketType m_packetType;
             /// <summary>
-            /// callback object
-            /// </summary>
-            public INetworkClientCallback m_callBackObj;
-            /// <summary>
             /// Default constructor
             /// </summary>
             /// <param name="packetType">packet type</param>
@@ -643,7 +753,6 @@ namespace EpServerEngine.cs
                 m_size = size;
                 m_iocpTcpClient = iocpTcpClient;
                 m_dataPacket = dataPacket;
-                m_callBackObj = iocpTcpClient.CallBackObj;
             }
         }
         /// <summary>
@@ -741,7 +850,8 @@ namespace EpServerEngine.cs
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                         transport.m_iocpTcpClient.Disconnect(); return;
                     }
-                    transport.m_callBackObj.OnReceived(transport.m_iocpTcpClient, transport.m_packet);
+                    transport.m_iocpTcpClient.OnReceivedDefault(transport.m_iocpTcpClient, transport.m_packet);
+                    transport.m_iocpTcpClient.OnReceived(transport.m_iocpTcpClient, transport.m_packet);
                 }
             }
           }
@@ -760,12 +870,14 @@ namespace EpServerEngine.cs
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                 transport.m_iocpTcpClient.Disconnect();
-                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                 return; }
             if (sentSize == 0)
             {
                 transport.m_iocpTcpClient.Disconnect();
-                transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_CONNECTION_CLOSING, transport.m_dataPacket);
+                transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.FAIL_CONNECTION_CLOSING, transport.m_dataPacket);
+                transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_CONNECTION_CLOSING, transport.m_dataPacket);
                 return;
             }
             if (sentSize < transport.m_size)
@@ -777,7 +889,8 @@ namespace EpServerEngine.cs
                 {
                     Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                     transport.m_iocpTcpClient.Disconnect();
-                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                    transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                    transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                     return;
                 }
             }
@@ -794,7 +907,8 @@ namespace EpServerEngine.cs
                     {
                         Console.WriteLine(ex.Message + " >" + ex.StackTrace);
                         transport.m_iocpTcpClient.Disconnect();
-                        transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                        transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
+                        transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, transport.m_dataPacket);
                         return;
                     }
                 }
@@ -815,9 +929,11 @@ namespace EpServerEngine.cs
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message + " >" + ex.StackTrace);
-                            transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
+                            transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
+                            transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
                             delayedTransport.m_iocpTcpClient.Disconnect();
-                            delayedTransport.m_callBackObj.OnSent(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, delayedTransport.m_dataPacket);
+                            delayedTransport.m_iocpTcpClient.OnSentDefault(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, delayedTransport.m_dataPacket);
+                            delayedTransport.m_iocpTcpClient.OnSent(delayedTransport.m_iocpTcpClient, SendStatus.FAIL_SOCKET_ERROR, delayedTransport.m_dataPacket);
                             return;
                         }
                     }
@@ -825,7 +941,8 @@ namespace EpServerEngine.cs
                     {
                         transport.m_iocpTcpClient.m_sendEvent.Unlock();
                     }
-                    transport.m_callBackObj.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
+                    transport.m_iocpTcpClient.OnSentDefault(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
+                    transport.m_iocpTcpClient.OnSent(transport.m_iocpTcpClient, SendStatus.SUCCESS, transport.m_dataPacket);
                 }
             }
 

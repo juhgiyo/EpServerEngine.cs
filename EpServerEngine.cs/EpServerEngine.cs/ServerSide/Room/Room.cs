@@ -69,6 +69,156 @@ namespace EpServerEngine.cs
         /// callback object
         /// </summary>
         private IRoomCallback m_callBackObj;
+
+        /// <summary>
+        /// OnCreated event
+        /// </summary>
+        OnRoomCreatedDelegate m_onCreated = delegate { };
+        /// <summary>
+        /// OnJoin event
+        /// </summary>
+        OnRoomJoinDelegate m_onJoin = delegate { };
+        /// <summary>
+        /// OnLeave event
+        /// </summary>
+        OnRoomLeaveDelegate m_onLeave = delegate { };
+        /// <summary>
+        /// OnBroadcast event
+        /// </summary>
+        OnRoomBroadcastDelegate m_onBroadcast = delegate { };
+        /// <summary>
+        /// OnDestroy event
+        /// </summary>
+        OnRoomDestroyDelegate m_onDestroy = delegate { };
+
+        /// <summary>
+        /// OnCreated event
+        /// </summary>
+        public OnRoomCreatedDelegate OnCreated
+        {
+            get
+            {
+                return m_onCreated;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onCreated = delegate { };
+                }
+                else
+                {
+                    m_onCreated = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnJoin event
+        /// </summary>
+        public OnRoomJoinDelegate OnJoin
+        {
+            get
+            {
+                return m_onJoin;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onJoin = delegate { };
+                }
+                else
+                {
+                    m_onJoin = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnLeave event
+        /// </summary>
+        public OnRoomLeaveDelegate OnLeave
+        {
+            get
+            {
+                return m_onLeave;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onLeave = delegate { };
+                }
+                else
+                {
+                    m_onLeave = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnBroadcast event
+        /// </summary>
+        public OnRoomBroadcastDelegate OnBroadcast
+        {
+            get
+            {
+                return m_onBroadcast;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onBroadcast = delegate { };
+                }
+                else
+                {
+                    m_onBroadcast = value;
+                }
+            }
+        }
+        /// <summary>
+        /// OnDestroy event
+        /// </summary>
+        public OnRoomDestroyDelegate OnDestroy
+        {
+            get
+            {
+                return m_onDestroy;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    m_onDestroy = delegate { };
+                }
+                else
+                {
+                    m_onDestroy = value;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// OnCreated event
+        /// </summary>
+        OnRoomCreatedDelegate OnCreatedDefault=delegate{};
+        /// <summary>
+        /// OnJoin event
+        /// </summary>
+        OnRoomJoinDelegate OnJoinDefault=delegate{};
+        /// <summary>
+        /// OnLeave event
+        /// </summary>
+        OnRoomLeaveDelegate OnLeaveDefault=delegate{};
+        /// <summary>
+        /// OnBroadcast event
+        /// </summary>
+        OnRoomBroadcastDelegate OnBroadcastDefault = delegate { };
+        /// <summary>
+        /// OnDestroy event
+        /// </summary>
+        OnRoomDestroyDelegate OnDestroyDefault = delegate { };
+
         /// <summary>
         /// Callback Object property
         /// </summary>
@@ -85,10 +235,28 @@ namespace EpServerEngine.cs
             {
                 lock (m_generalLock)
                 {
+                    if (m_callBackObj != null)
+                    {
+                        OnCreatedDefault -= m_callBackObj.OnCreated;
+                        OnJoinDefault -= m_callBackObj.OnJoin;
+                        OnLeaveDefault -= m_callBackObj.OnLeave;
+                        OnBroadcastDefault -= m_callBackObj.OnBroadcast;
+                        OnDestroyDefault -= m_callBackObj.OnDestroy;
+                    }
                     m_callBackObj = value;
+                    if (m_callBackObj != null)
+                    {
+                        OnCreatedDefault += m_callBackObj.OnCreated;
+                        OnJoinDefault += m_callBackObj.OnJoin;
+                        OnLeaveDefault += m_callBackObj.OnLeave;
+                        OnBroadcastDefault += m_callBackObj.OnBroadcast;
+                        OnDestroyDefault += m_callBackObj.OnDestroy;
+                    }
                 }
             }
         }
+
+
         /// <summary>
         /// Room name property
         /// </summary>
@@ -118,14 +286,23 @@ namespace EpServerEngine.cs
         {
             RoomName = roomName;
             CallBackObj = callbackObj;
-            if (CallBackObj != null)
+            Task t = new Task(delegate()
             {
-                Task t = new Task(delegate()
-                {
-                    CallBackObj.OnCreated(this);
-                });
-                t.Start();
-            }
+                OnCreatedDefault(this);
+                OnCreated(this);
+            });
+            t.Start();
+
+        }
+
+        ~Room()
+        {
+            Task t = new Task(delegate()
+            {
+                OnDestroyDefault(this);
+                OnDestroy(this);
+            });
+            t.Start();
         }
 
         public void AddSocket(INetworkSocket socket)
@@ -134,14 +311,14 @@ namespace EpServerEngine.cs
             {
                 m_socketList.Add(socket);
             }
-            if (CallBackObj != null)
+            
+            Task t = new Task(delegate()
             {
-                Task t = new Task(delegate()
-                {
-                    CallBackObj.OnJoin(this,socket);
-                });
-                t.Start();
-            }
+                OnJoinDefault(this, socket);
+                OnJoin(this,socket);
+            });
+            t.Start();
+            
         }
 
         /// <summary>
@@ -166,14 +343,14 @@ namespace EpServerEngine.cs
             lock (m_listLock)
             {
                 m_socketList.Remove(socket);
-                if (CallBackObj != null)
+                
+                Task t = new Task(delegate()
                 {
-                    Task t = new Task(delegate()
-                    {
-                        CallBackObj.OnLeave(this, socket);
-                    });
-                    t.Start();
-                }
+                    OnLeaveDefault(this, socket);
+                    OnLeave(this, socket);
+                });
+                t.Start();
+                
                 return m_socketList.Count;
             }
         }
@@ -189,14 +366,14 @@ namespace EpServerEngine.cs
             {
                 socket.Send(packet);
             }
-            if (CallBackObj != null)
+            
+            Task t = new Task(delegate()
             {
-                Task t = new Task(delegate()
-                {
-                    CallBackObj.OnBroadcast(this,packet);
-                });
-                t.Start();
-            }
+                OnBroadcastDefault(this, packet);
+                OnBroadcast(this,packet);
+            });
+            t.Start();
+            
         }
 
         /// <summary>

@@ -257,8 +257,36 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         void Broadcast(string roomName, byte[] data);
 
+        /// <summary>
+        /// OnServerStarted event
+        /// </summary>
+        OnServerStartedDelegate OnServerStarted
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        ///  OnAccept event
+        /// </summary>
+        OnServerAcceptDelegate OnAccept
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnserverStopped event
+        /// </summary>
+        OnServerStoppedDelegate OnServerStopped
+        {
+            get;
+            set;
+        }
 
     }
+
+    public delegate void OnServerStartedDelegate(INetworkServer server, StartStatus status);
+    public delegate void OnServerAcceptDelegate(INetworkServer server, IPInfo ipInfo);
+    public delegate void OnServerStoppedDelegate(INetworkServer server);
 
     /// <summary>
     /// Server callback interface
@@ -284,6 +312,7 @@ namespace EpServerEngine.cs
         /// <param name="server">server</param>
         void OnServerStopped(INetworkServer server);
     };
+
 
     /// <summary>
     /// Socket interface
@@ -368,6 +397,40 @@ namespace EpServerEngine.cs
             set;
         }
 
+
+        /// <summary>
+        /// OnNewConnected event
+        /// </summary>
+        OnSocketNewConnectionDelegate OnNewConnection
+        {
+            get;
+            set;   
+        }
+        /// <summary>
+        /// OnRecevied event
+        /// </summary>
+        OnSocketReceivedDelegate OnReceived
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnSent event
+        /// </summary>
+        OnSocketSentDelegate OnSent
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// OnDisconnect event
+        /// </summary>
+        OnSocketDisconnectDelegate OnDisconnect
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Return the room instance of given room name
         /// </summary>
@@ -421,6 +484,13 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         void Broadcast(string roomName, byte[] data);
     }
+
+
+    public delegate void OnSocketNewConnectionDelegate(INetworkSocket socket);
+    public delegate void OnSocketReceivedDelegate(INetworkSocket socket, Packet receivedPacket);
+    public delegate void OnSocketSentDelegate(INetworkSocket socket, SendStatus status, Packet sentPacket);
+    public delegate void OnSocketDisconnectDelegate(INetworkSocket socket);
+
 
     /// <summary>
     /// Socket callback interface
