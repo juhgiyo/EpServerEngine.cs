@@ -191,10 +191,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onSent = delegate { };
+                    if (CallBackObj != null)
+                        m_onSent += CallBackObj.OnSent;
                 }
                 else
                 {
-                    m_onSent = value;
+                    m_onSent = CallBackObj != null && CallBackObj.OnSent != value ? CallBackObj.OnSent + (value - CallBackObj.OnSent) : value;
                 }
             }
         }
@@ -212,10 +214,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onDisconnect = delegate { };
+                    if (CallBackObj != null)
+                        m_onDisconnect += CallBackObj.OnDisconnect;
                 }
                 else
                 {
-                    m_onDisconnect = value;
+                    m_onDisconnect = CallBackObj != null && CallBackObj.OnDisconnect != value ? CallBackObj.OnDisconnect + (value - CallBackObj.OnDisconnect) : value;
                 }
             }
         }
