@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace EpServerEngineSampleServer
 {
-    public partial class FrmSampleServer : Form, INetworkServerCallback, INetworkSocketCallback
+    public partial class FrmSampleServer : Form, INetworkServerAcceptor, INetworkServerCallback, INetworkSocketCallback
     {
         INetworkServer m_server = new IocpTcpServer();
         public FrmSampleServer()
@@ -29,7 +29,7 @@ namespace EpServerEngineSampleServer
                 btnConnect.Text = "Stop";
                 tbSend.Enabled = true;
                 btnSend.Enabled = true;
-                ServerOps ops = new ServerOps(this, port);
+                ServerOps ops = new ServerOps(this, port,this);
                 m_server.StartServer(ops);
             }
             else
@@ -38,7 +38,7 @@ namespace EpServerEngineSampleServer
                 btnConnect.Text = "Start";
                 tbSend.Enabled = false;
                 btnSend.Enabled = false;
-                if(m_server.IsServerStarted())
+                if(m_server.IsServerStarted)
                     m_server.StopServer();
             }
             
@@ -53,7 +53,7 @@ namespace EpServerEngineSampleServer
                 MessageBox.Show("Please type in something to send.");
             }
             byte[] bytes=BytesFromString(sendText);
-            Packet packet=new Packet(bytes,bytes.Count(),false);
+            Packet packet=new Packet(bytes,0,bytes.Count(),false);
             m_server.Broadcast(packet);
 
         }
@@ -68,9 +68,18 @@ namespace EpServerEngineSampleServer
             
         }
 
-        public INetworkSocketCallback OnAccept(INetworkServer server, IPInfo ipInfo)
+        public bool OnAccept(INetworkServer server, IPInfo ipInfo)
+        {
+            return true;
+        }
+
+        public INetworkSocketCallback GetSocketCallback()
         {
             return this;
+        }
+
+        public void OnServerAccepted(INetworkServer server, INetworkSocket socket)
+        {
         }
         public void OnServerStopped(INetworkServer server)
         {
@@ -80,7 +89,7 @@ namespace EpServerEngineSampleServer
         public void OnNewConnection(INetworkSocket socket)
         {
             m_socketList.Add(socket);
-            String sendString = "** New user(" + socket.GetIPInfo().GetIPAddress() + ") connected!";
+            String sendString = "** New user(" + socket.IPInfo.IPAddress + ") connected!";
             AddMsg(sendString);
 
             byte[] sendBuff = BytesFromString(sendString);
@@ -89,14 +98,14 @@ namespace EpServerEngineSampleServer
             {
                 if (socketObj != socket)
                 {
-                    socketObj.Send(new Packet(sendBuff, sendBuff.Count(), false));
+                    socketObj.Send(new Packet(sendBuff,0, sendBuff.Count(), false));
                 }
             }
         }
 
         public void OnReceived(INetworkSocket socket, Packet receivedPacket)
         {
-            string sendString = "User(" + socket.GetIPInfo().GetIPAddress() + ") : " + StringFromByteArr(receivedPacket.GetPacket());
+            string sendString = "User(" + socket.IPInfo.IPAddress + ") : " + StringFromByteArr(receivedPacket.PacketRaw);
             AddMsg(sendString);
             foreach (var socketObj in m_socketList)
             {
@@ -109,7 +118,7 @@ namespace EpServerEngineSampleServer
 
 
 
-        public void OnSent(INetworkSocket socket, SendStatus status)
+        public void OnSent(INetworkSocket socket, SendStatus status, Packet sentPacket)
         {
             switch (status)
             {
@@ -136,7 +145,7 @@ namespace EpServerEngineSampleServer
         {
             m_socketList.Remove(socket);
 
-            String sendString = "** User(" + socket.GetIPInfo().GetIPAddress() + ") disconnected!";
+            String sendString = "** User(" + socket.IPInfo.IPAddress + ") disconnected!";
             AddMsg(sendString);
 
             byte[] sendBuff= BytesFromString(sendString);
@@ -145,7 +154,7 @@ namespace EpServerEngineSampleServer
             {
                 if (socketObj != socket)
                 {
-                    socketObj.Send(new Packet(sendBuff,sendBuff.Count(),false));
+                    socketObj.Send(new Packet(sendBuff,0,sendBuff.Count(),false));
                 }
             }
         }

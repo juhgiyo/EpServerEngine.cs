@@ -41,7 +41,7 @@ namespace EpServerEngineSampleClient
                 btnConnect.Text = "Connect";
                 tbSend.Enabled = false;
                 btnSend.Enabled = false;
-                if (m_client.IsConnectionAlive())
+                if (m_client.IsConnectionAlive)
                     m_client.Disconnect();
             }
         }
@@ -54,7 +54,7 @@ namespace EpServerEngineSampleClient
                 MessageBox.Show("Please type in something to send.");
             }
             byte[] bytes = BytesFromString(sendText);
-            Packet packet=new Packet(bytes,bytes.Count(),false);
+            Packet packet=new Packet(bytes,0,bytes.Count(),false);
             m_client.Send(packet);
         }
 
@@ -65,11 +65,11 @@ namespace EpServerEngineSampleClient
 
         public void OnReceived(INetworkClient client, Packet receivedPacket)
         {
-            string sendString = StringFromByteArr(receivedPacket.GetPacket()) + "\r\n";
+            string sendString = StringFromByteArr(receivedPacket.PacketRaw) + "\r\n";
             AddMsg(sendString);
         }
-
-        public void OnSent(INetworkClient client, SendStatus status)
+        
+        public void OnSent(INetworkClient client, SendStatus status, Packet sentPacket)
         {
             switch (status)
             {
