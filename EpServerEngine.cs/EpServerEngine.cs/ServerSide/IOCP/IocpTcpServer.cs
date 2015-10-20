@@ -410,8 +410,8 @@ namespace EpServerEngine.cs
         {
             if (ops == null)
                 ops = ServerOps.defaultServerOps;
-            if (ops.CallBackObj == null)
-                throw new NullReferenceException("callBackObj is null!");
+//             if (ops.CallBackObj == null)
+//                 throw new NullReferenceException("callBackObj is null!");
             lock (m_generalLock)
             {
                 m_serverOps = ops;

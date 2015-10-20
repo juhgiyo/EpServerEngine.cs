@@ -125,7 +125,6 @@ namespace EpServerEngine.cs
         /// </summary>
         private bool m_isConnected = false;
 
-
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -387,23 +386,10 @@ namespace EpServerEngine.cs
         /// <param name="ops">options for client</param>
         public void Connect(ClientOps ops)
         {
-//             if (IsConnectionAlive)
-//             {
-//                 ConnectStatus status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-//                 if (ops.CallBackObj != null)
-//                 {
-//                     Task t = new Task(delegate()
-//                     {
-//                         ops.CallBackObj.OnConnected(this, status);
-//                     });
-//                     t.Start();
-// 
-//                 }
-//                 return;
             if (ops == null)
                 ops = ClientOps.defaultClientOps;
-            if (ops.CallBackObj == null)
-                throw new NullReferenceException("callBackObj is null!");
+//             if (ops.CallBackObj == null)
+//                 throw new NullReferenceException("callBackObj is null!");
             lock (m_generalLock)
             {
                 m_clientOps = ops;
