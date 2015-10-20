@@ -59,6 +59,16 @@ namespace EpServerEngine.cs
             set;
         }
 
+
+        /// <summary>
+        /// room callback object
+        /// </summary>
+        public IRoomCallback RoomCallBackObj
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// port
         /// </summary>
@@ -89,9 +99,11 @@ namespace EpServerEngine.cs
         public ServerOps()
         {
             CallBackObj = null;
+            RoomCallBackObj = null;
             Port = ServerConf.DEFAULT_PORT;
             NoDelay = true;
             MaxSocketCount = SocketCount.Infinite;
+
         }
         /// <summary>
         /// Default constructor
@@ -99,10 +111,11 @@ namespace EpServerEngine.cs
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">noDelay falg</param>
-        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay = true, int socketCount = SocketCount.Infinite)
+        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay = true, int socketCount = SocketCount.Infinite, IRoomCallback roomCallBackObj=null)
         {
             this.Port = port;
             this.CallBackObj = callBackObj;
+            this.RoomCallBackObj = roomCallBackObj;
             this.NoDelay = noDelay;
             this.MaxSocketCount = socketCount;
         }
@@ -128,6 +141,15 @@ namespace EpServerEngine.cs
         /// callback object
         /// </summary>
         INetworkServerCallback CallBackObj
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// room callback object
+        /// </summary>
+        IRoomCallback RoomCallBackObj
         {
             get;
             set;

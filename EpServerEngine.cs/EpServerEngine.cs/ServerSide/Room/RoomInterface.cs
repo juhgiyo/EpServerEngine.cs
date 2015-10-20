@@ -44,9 +44,20 @@ namespace EpServerEngine.cs
 {
     public interface IRoom
     {
+        /// <summary>
+        /// Room name property
+        /// </summary>
         string RoomName
         {
             get;
+        }
+        /// <summary>
+        /// Callback Object property
+        /// </summary>
+        IRoomCallback CallBackObj
+        {
+            get;
+            set;
         }
         
         /// <summary>
@@ -76,6 +87,46 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="data">data in byte array</param>
         void Broadcast(byte[] data);
+
+    }
+
+    public interface IRoomCallback
+    {
+        /// <summary>
+        /// Room created callback
+        /// </summary>
+        /// <param name="room">room</param>
+        void OnCreated(IRoom room);
+
+        /// <summary>
+        /// Join callback
+        /// </summary>
+        /// <param name="room">room</param>
+        /// <param name="socket">socket</param>
+        void OnJoin(IRoom room, INetworkSocket socket);
+
+        /// <summary>
+        /// Leave callback
+        /// </summary>
+        /// <param name="room">room</param>
+        /// <param name="socket">socket</param>
+        void OnLeave(IRoom room, INetworkSocket socket);
+
+        /// <summary>
+        /// Broadcast callback
+        /// </summary>
+        /// <param name="room">room</param>
+        /// <param name="packet">broadcasted packet</param>
+        void OnBroadcast(IRoom room, Packet packet);
+
+
+        /// <summary>
+        /// Room destroyed callback
+        /// </summary>
+        /// <param name="room"></param>
+        void OnDestroy(IRoom room);
+
+
 
     }
 }

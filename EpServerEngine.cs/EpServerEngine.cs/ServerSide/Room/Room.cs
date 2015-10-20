@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace EpServerEngine.cs
 {
@@ -64,7 +65,33 @@ namespace EpServerEngine.cs
         /// </summary>
         private Object m_listLock = new Object();
 
-
+        /// <summary>
+        /// callback object
+        /// </summary>
+        private IRoomCallback m_callBackObj;
+        /// <summary>
+        /// Callback Object property
+        /// </summary>
+        public IRoomCallback CallBackObj
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_callBackObj;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_callBackObj = value;
+                }
+            }
+        }
+        /// <summary>
+        /// Room name property
+        /// </summary>
         public string RoomName
         {
             get
@@ -74,14 +101,31 @@ namespace EpServerEngine.cs
                     return m_roomName;
                 }
             }
+            private set
+            {
+                lock (m_generalLock)
+                {
+                    m_roomName = value;
+                }
+            }
         }
         /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="roomName">name of the room</param>
-        public Room(string roomName)
+        /// <param name="callbackObj">callback Obj</param>
+        public Room(string roomName, IRoomCallback callbackObj=null)
         {
-            m_roomName = roomName;
+            RoomName = roomName;
+            CallBackObj = callbackObj;
+            if (CallBackObj != null)
+            {
+                Task t = new Task(delegate()
+                {
+                    CallBackObj.OnCreated(this);
+                });
+                t.Start();
+            }
         }
 
         public void AddSocket(INetworkSocket socket)
@@ -89,6 +133,14 @@ namespace EpServerEngine.cs
             lock (m_listLock)
             {
                 m_socketList.Add(socket);
+            }
+            if (CallBackObj != null)
+            {
+                Task t = new Task(delegate()
+                {
+                    CallBackObj.OnJoin(this,socket);
+                });
+                t.Start();
             }
         }
 
@@ -109,11 +161,19 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="clientSocket">the client to detach</param>
         /// <returns>the number of socket in the room</returns>
-        public int DetachClient(INetworkSocket clientSocket)
+        public int DetachClient(INetworkSocket socket)
         {
             lock (m_listLock)
             {
-                m_socketList.Remove(clientSocket);
+                m_socketList.Remove(socket);
+                if (CallBackObj != null)
+                {
+                    Task t = new Task(delegate()
+                    {
+                        CallBackObj.OnLeave(this, socket);
+                    });
+                    t.Start();
+                }
                 return m_socketList.Count;
             }
         }
@@ -128,6 +188,14 @@ namespace EpServerEngine.cs
             foreach (INetworkSocket socket in list)
             {
                 socket.Send(packet);
+            }
+            if (CallBackObj != null)
+            {
+                Task t = new Task(delegate()
+                {
+                    CallBackObj.OnBroadcast(this,packet);
+                });
+                t.Start();
             }
         }
 

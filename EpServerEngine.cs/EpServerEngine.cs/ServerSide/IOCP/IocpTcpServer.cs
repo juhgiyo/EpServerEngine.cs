@@ -83,6 +83,11 @@ namespace EpServerEngine.cs
         private INetworkServerCallback m_callBackObj=null;
 
         /// <summary>
+        /// room callback object
+        /// </summary>
+        private IRoomCallback m_roomCallBackObj = null;
+
+        /// <summary>
         /// general lock
         /// </summary>
         private Object m_generalLock = new Object();
@@ -176,6 +181,27 @@ namespace EpServerEngine.cs
         }
 
         /// <summary>
+        /// room callback object
+        /// </summary>
+        public IRoomCallback RoomCallBackObj
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_roomCallBackObj;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    m_roomCallBackObj = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// No delay property
         /// </summary>
         public bool NoDelay
@@ -258,6 +284,7 @@ namespace EpServerEngine.cs
                     }
 
                     CallBackObj = m_serverOps.CallBackObj;
+                    RoomCallBackObj = m_serverOps.RoomCallBackObj;
                     NoDelay = m_serverOps.NoDelay;
                     Port = m_serverOps.Port;
                     MaxSocketCount = m_serverOps.MaxSocketCount;
@@ -568,7 +595,7 @@ namespace EpServerEngine.cs
                 }
                 else
                 {
-                    curRoom= new Room(roomName);;
+                    curRoom= new Room(roomName,RoomCallBackObj);
                     m_roomMap[roomName] = curRoom;
                 }
                 curRoom.AddSocket(socket);
