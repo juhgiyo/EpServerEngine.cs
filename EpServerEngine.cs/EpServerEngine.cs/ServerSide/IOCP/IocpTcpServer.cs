@@ -118,7 +118,7 @@ namespace EpServerEngine.cs
         /// <summary>
         ///  OnAccept event
         /// </summary>
-        OnServerAcceptDelegate m_onAccept = delegate { };
+        OnServerAcceptedDelegate m_onAccepted = delegate { };
         /// <summary>
         /// OnserverStopped event
         /// </summary>
@@ -150,21 +150,21 @@ namespace EpServerEngine.cs
         /// <summary>
         ///  OnAccept event
         /// </summary>
-        public OnServerAcceptDelegate OnAccept
+        public OnServerAcceptedDelegate OnAccepted
         {
             get
             {
-                return m_onAccept;
+                return m_onAccepted;
             }
             set
             {
                 if (value == null)
                 {
-                    m_onAccept = delegate { };
+                    m_onAccepted = delegate { };
                 }
                 else
                 {
-                    m_onAccept = value;
+                    m_onAccepted = value;
                 }
             }
         }
@@ -484,7 +484,7 @@ namespace EpServerEngine.cs
                     {
                         server.m_socketList.Add(socket);
                     }
-                    server.OnAccept(server, socket.IPInfo);
+                    server.OnAccepted(server, socket);
                 }
             }
            

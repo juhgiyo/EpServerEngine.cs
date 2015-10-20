@@ -268,7 +268,7 @@ namespace EpServerEngine.cs
         /// <summary>
         ///  OnAccept event
         /// </summary>
-        OnServerAcceptDelegate OnAccept
+        OnServerAcceptedDelegate OnAccepted
         {
             get;
             set;
@@ -285,7 +285,7 @@ namespace EpServerEngine.cs
     }
 
     public delegate void OnServerStartedDelegate(INetworkServer server, StartStatus status);
-    public delegate void OnServerAcceptDelegate(INetworkServer server, IPInfo ipInfo);
+    public delegate void OnServerAcceptedDelegate(INetworkServer server, INetworkSocket socket);
     public delegate void OnServerStoppedDelegate(INetworkServer server);
 
     /// <summary>
