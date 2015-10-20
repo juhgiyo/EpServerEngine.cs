@@ -83,7 +83,7 @@ namespace EpServerEngine.cs
         private INetworkServerCallback m_callBackObj=null;
 
         /// <summary>
-        /// callback object
+        /// acceptor object
         /// </summary>
         private INetworkServerAcceptor m_acceptor = null;
 
@@ -246,7 +246,9 @@ namespace EpServerEngine.cs
                 }
             }
         }
-
+        /// <summary>
+        /// acceptor object
+        /// </summary>
         public INetworkServerAcceptor Acceptor
         {
             get
@@ -499,7 +501,7 @@ namespace EpServerEngine.cs
                     return;
                 }
                 
-                if (server.Acceptor.OnAccept(server, socket.IPInfo))
+                if (!server.Acceptor.OnAccept(server, socket.IPInfo))
                 {
                     socket.Disconnect();
                 }

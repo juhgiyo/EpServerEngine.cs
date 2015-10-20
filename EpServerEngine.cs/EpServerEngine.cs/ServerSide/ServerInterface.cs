@@ -50,6 +50,9 @@ namespace EpServerEngine.cs
     /// </summary>
     public sealed class ServerOps
     {
+        /// <summary>
+        /// acceptor object
+        /// </summary>
         public INetworkServerAcceptor Acceptor
         {
             get;
@@ -115,6 +118,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// Default constructor
         /// </summary>
+        /// <param name="acceptor">acceptor object</param>
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">noDelay falg</param>
@@ -145,6 +149,9 @@ namespace EpServerEngine.cs
         /// <returns>port</returns>
         String Port { get; }
 
+        /// <summary>
+        /// acceptor object
+        /// </summary>
         INetworkServerAcceptor Acceptor
         {
             get;
@@ -316,7 +323,7 @@ namespace EpServerEngine.cs
         /// Accept callback
         /// </summary>
         /// <param name="server">server</param>
-        /// <param name="ipInfo">connection info</param>
+        /// <param name="socket">socket accepted</param>
         void OnServerAccepted(INetworkServer server, INetworkSocket socket);
         /// <summary>
         /// Server stopped callback
