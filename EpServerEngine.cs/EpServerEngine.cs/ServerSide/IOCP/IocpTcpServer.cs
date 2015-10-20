@@ -138,10 +138,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onServerStarted = delegate { };
+                    if (CallBackObj != null)
+                        m_onServerStarted += CallBackObj.OnServerStarted;
                 }
                 else
                 {
-                    m_onServerStarted = value;
+                    m_onServerStarted = CallBackObj != null && CallBackObj.OnServerStarted != value ? CallBackObj.OnServerStarted + (value - CallBackObj.OnServerStarted) : value;
                 }
             }
         }
@@ -180,22 +182,15 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onServerStopped = delegate { };
+                    if (CallBackObj != null)
+                        m_onServerStarted += CallBackObj.OnServerStarted;
                 }
                 else
                 {
-                    m_onServerStopped = value;
+                    m_onServerStopped = CallBackObj != null && CallBackObj.OnServerStopped != value ? CallBackObj.OnServerStopped + (value - CallBackObj.OnServerStopped) : value;
                 }
             }
         }
-
-        /// <summary>
-        /// OnServerStarted event
-        /// </summary>
-        OnServerStartedDelegate OnServerStartedDefault = delegate { };
-        /// <summary>
-        /// OnserverStopped event
-        /// </summary>
-        OnServerStoppedDelegate OnServerStoppedDefault = delegate { };
 
         /// <summary>
         /// Default constructor
@@ -263,14 +258,14 @@ namespace EpServerEngine.cs
                 {
                     if (m_callBackObj != null)
                     {
-                        OnServerStartedDefault -= m_callBackObj.OnServerStarted;
-                        OnServerStoppedDefault -= m_callBackObj.OnServerStopped;
+                        m_onServerStarted -= m_callBackObj.OnServerStarted;
+                        m_onServerStopped -= m_callBackObj.OnServerStopped;
                     }
                     m_callBackObj = value;
                     if (m_callBackObj != null)
                     {
-                        OnServerStartedDefault += m_callBackObj.OnServerStarted;
-                        OnServerStoppedDefault += m_callBackObj.OnServerStopped;
+                        m_onServerStarted += m_callBackObj.OnServerStarted;
+                        m_onServerStopped += m_callBackObj.OnServerStopped;
                     }
                 }
             }
@@ -407,7 +402,6 @@ namespace EpServerEngine.cs
             }
             catch (CallbackException)
             {
-                OnServerStartedDefault(this, status);
                 OnServerStarted(this, status);
                 return;
             }
@@ -417,11 +411,9 @@ namespace EpServerEngine.cs
                 if (m_listener != null)
                     m_listener.Stop();
                 m_listener = null;
-                OnServerStartedDefault(this, StartStatus.FAIL_SOCKET_ERROR);
                 OnServerStarted(this, StartStatus.FAIL_SOCKET_ERROR);
                 return;
             }
-            OnServerStartedDefault(this, StartStatus.SUCCESS);
             OnServerStarted(this, StartStatus.SUCCESS);
         }
 
@@ -530,7 +522,6 @@ namespace EpServerEngine.cs
             }
             ShutdownAllClient();
 
-            OnServerStoppedDefault(this);
             OnServerStopped(this);
         }
 

@@ -91,18 +91,15 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onDetached = delegate { };
+                    if (CallBackObj != null)
+                        m_onDetached += CallBackObj.OnDetached;
                 }
                 else
                 {
-                    m_onDetached = value;
+                    m_onDetached = CallBackObj != null && CallBackObj.OnDetached != value ? CallBackObj.OnDetached + (value - CallBackObj.OnDetached) : value;
                 }
             }
         }
-
-        /// <summary>
-        /// OnDetached event
-        /// </summary>
-        OnP2PDetachedDelegate OnDetachedDefault = delegate { };
 
         /// <summary>
         /// flag whether P2P is paired
@@ -143,12 +140,12 @@ namespace EpServerEngine.cs
                 {
                     if (m_callBackObj != null)
                     {
-                        OnDetachedDefault -= m_callBackObj.OnDetached;
+                        m_onDetached -= m_callBackObj.OnDetached;
                     }
                     m_callBackObj = value;
                     if (m_callBackObj != null)
                     {
-                        OnDetachedDefault += m_callBackObj.OnDetached;
+                        m_onDetached += m_callBackObj.OnDetached;
                     }
                 }
             }
@@ -207,7 +204,6 @@ namespace EpServerEngine.cs
                     
                     Task t = new Task(delegate()
                     {
-                        OnDetachedDefault(this, m_socket1, m_socket2);
                         OnDetached(this, m_socket1, m_socket2);
                     });
                     t.Start();

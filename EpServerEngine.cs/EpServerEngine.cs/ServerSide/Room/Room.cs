@@ -105,10 +105,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onCreated = delegate { };
+                    if (CallBackObj != null)
+                        m_onCreated += CallBackObj.OnCreated;
                 }
                 else
                 {
-                    m_onCreated = value;
+                    m_onCreated = CallBackObj != null && CallBackObj.OnCreated != value ? CallBackObj.OnCreated + (value - CallBackObj.OnCreated) : value;
                 }
             }
         }
@@ -126,10 +128,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onJoin = delegate { };
+                    if (CallBackObj != null)
+                        m_onJoin += CallBackObj.OnJoin;
                 }
                 else
                 {
-                    m_onJoin = value;
+                    m_onJoin = CallBackObj != null && CallBackObj.OnJoin != value ? CallBackObj.OnJoin + (value - CallBackObj.OnJoin) : value;
                 }
             }
         }
@@ -147,10 +151,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onLeave = delegate { };
+                    if (CallBackObj != null)
+                        m_onLeave += CallBackObj.OnLeave;
                 }
                 else
                 {
-                    m_onLeave = value;
+                    m_onLeave = CallBackObj != null && CallBackObj.OnLeave != value ? CallBackObj.OnLeave + (value - CallBackObj.OnLeave) : value;
                 }
             }
         }
@@ -168,10 +174,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onBroadcast = delegate { };
+                    if (CallBackObj != null)
+                        m_onBroadcast += CallBackObj.OnBroadcast;
                 }
                 else
                 {
-                    m_onBroadcast = value;
+                    m_onBroadcast = CallBackObj != null && CallBackObj.OnBroadcast != value ? CallBackObj.OnBroadcast + (value - CallBackObj.OnBroadcast) : value;
                 }
             }
         }
@@ -189,35 +197,15 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onDestroy = delegate { };
+                    if (CallBackObj != null)
+                        m_onDestroy += CallBackObj.OnDestroy;
                 }
                 else
                 {
-                    m_onDestroy = value;
+                    m_onDestroy = CallBackObj != null && CallBackObj.OnDestroy != value ? CallBackObj.OnDestroy + (value - CallBackObj.OnDestroy) : value;
                 }
             }
         }
-
-
-        /// <summary>
-        /// OnCreated event
-        /// </summary>
-        OnRoomCreatedDelegate OnCreatedDefault=delegate{};
-        /// <summary>
-        /// OnJoin event
-        /// </summary>
-        OnRoomJoinDelegate OnJoinDefault=delegate{};
-        /// <summary>
-        /// OnLeave event
-        /// </summary>
-        OnRoomLeaveDelegate OnLeaveDefault=delegate{};
-        /// <summary>
-        /// OnBroadcast event
-        /// </summary>
-        OnRoomBroadcastDelegate OnBroadcastDefault = delegate { };
-        /// <summary>
-        /// OnDestroy event
-        /// </summary>
-        OnRoomDestroyDelegate OnDestroyDefault = delegate { };
 
         /// <summary>
         /// Callback Object property
@@ -237,20 +225,20 @@ namespace EpServerEngine.cs
                 {
                     if (m_callBackObj != null)
                     {
-                        OnCreatedDefault -= m_callBackObj.OnCreated;
-                        OnJoinDefault -= m_callBackObj.OnJoin;
-                        OnLeaveDefault -= m_callBackObj.OnLeave;
-                        OnBroadcastDefault -= m_callBackObj.OnBroadcast;
-                        OnDestroyDefault -= m_callBackObj.OnDestroy;
+                        m_onCreated -= m_callBackObj.OnCreated;
+                        m_onJoin -= m_callBackObj.OnJoin;
+                        m_onLeave -= m_callBackObj.OnLeave;
+                        m_onBroadcast -= m_callBackObj.OnBroadcast;
+                        m_onDestroy -= m_callBackObj.OnDestroy;
                     }
                     m_callBackObj = value;
                     if (m_callBackObj != null)
                     {
-                        OnCreatedDefault += m_callBackObj.OnCreated;
-                        OnJoinDefault += m_callBackObj.OnJoin;
-                        OnLeaveDefault += m_callBackObj.OnLeave;
-                        OnBroadcastDefault += m_callBackObj.OnBroadcast;
-                        OnDestroyDefault += m_callBackObj.OnDestroy;
+                        m_onCreated += m_callBackObj.OnCreated;
+                        m_onJoin += m_callBackObj.OnJoin;
+                        m_onLeave += m_callBackObj.OnLeave;
+                        m_onBroadcast += m_callBackObj.OnBroadcast;
+                        m_onDestroy += m_callBackObj.OnDestroy;
                     }
                 }
             }
@@ -288,7 +276,6 @@ namespace EpServerEngine.cs
             CallBackObj = callbackObj;
             Task t = new Task(delegate()
             {
-                OnCreatedDefault(this);
                 OnCreated(this);
             });
             t.Start();
@@ -299,7 +286,6 @@ namespace EpServerEngine.cs
         {
             Task t = new Task(delegate()
             {
-                OnDestroyDefault(this);
                 OnDestroy(this);
             });
             t.Start();
@@ -314,7 +300,6 @@ namespace EpServerEngine.cs
             
             Task t = new Task(delegate()
             {
-                OnJoinDefault(this, socket);
                 OnJoin(this,socket);
             });
             t.Start();
@@ -346,7 +331,6 @@ namespace EpServerEngine.cs
                 
                 Task t = new Task(delegate()
                 {
-                    OnLeaveDefault(this, socket);
                     OnLeave(this, socket);
                 });
                 t.Start();
@@ -369,7 +353,6 @@ namespace EpServerEngine.cs
             
             Task t = new Task(delegate()
             {
-                OnBroadcastDefault(this, packet);
                 OnBroadcast(this,packet);
             });
             t.Start();
