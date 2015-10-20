@@ -50,6 +50,12 @@ namespace EpServerEngine.cs
     /// </summary>
     public sealed class ServerOps
     {
+        public INetworkServerAcceptor Acceptor
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// callback object
         /// </summary>
@@ -98,6 +104,7 @@ namespace EpServerEngine.cs
         /// </summary>
         public ServerOps()
         {
+            Acceptor = null;
             CallBackObj = null;
             RoomCallBackObj = null;
             Port = ServerConf.DEFAULT_PORT;
@@ -111,9 +118,10 @@ namespace EpServerEngine.cs
         /// <param name="callBackObj">callback object</param>
         /// <param name="port">port</param>
         /// <param name="noDelay">noDelay falg</param>
-        public ServerOps(INetworkServerCallback callBackObj, String port, bool noDelay = true, int socketCount = SocketCount.Infinite, IRoomCallback roomCallBackObj=null)
+        public ServerOps(INetworkServerAcceptor acceptor, String port, INetworkServerCallback callBackObj=null, IRoomCallback roomCallBackObj = null, bool noDelay = true, int socketCount = SocketCount.Infinite)
         {
             this.Port = port;
+            this.Acceptor = acceptor;
             this.CallBackObj = callBackObj;
             this.RoomCallBackObj = roomCallBackObj;
             this.NoDelay = noDelay;
@@ -137,6 +145,11 @@ namespace EpServerEngine.cs
         /// <returns>port</returns>
         String Port { get; }
 
+        INetworkServerAcceptor Acceptor
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// callback object
         /// </summary>
@@ -268,7 +281,7 @@ namespace EpServerEngine.cs
         /// <summary>
         ///  OnAccept event
         /// </summary>
-        OnServerAcceptedDelegate OnAccepted
+        OnServerAcceptedDelegate OnServerAccepted
         {
             get;
             set;
@@ -304,8 +317,7 @@ namespace EpServerEngine.cs
         /// </summary>
         /// <param name="server">server</param>
         /// <param name="ipInfo">connection info</param>
-        /// <returns>the socket callback interface</returns>
-        INetworkSocketCallback OnAccept(INetworkServer server, IPInfo ipInfo);
+        void OnServerAccepted(INetworkServer server, INetworkSocket socket);
         /// <summary>
         /// Server stopped callback
         /// </summary>
@@ -313,6 +325,24 @@ namespace EpServerEngine.cs
         void OnServerStopped(INetworkServer server);
     };
 
+    /// <summary>
+    /// Server acceptor interface
+    /// </summary>
+    public interface INetworkServerAcceptor
+    {
+        /// <summary>
+        /// Accept callback
+        /// </summary>
+        /// <param name="server">server</param>
+        /// <param name="ipInfo">connection info</param>
+        /// <returns>the socket callback interface</returns>
+        bool OnAccept(INetworkServer server, IPInfo ipInfo);
+        /// <summary>
+        /// Should return the socket callback object
+        /// </summary>
+        /// <returns>the socket callback object</returns>
+        INetworkSocketCallback GetSocketCallback();
+    };
 
     /// <summary>
     /// Socket interface

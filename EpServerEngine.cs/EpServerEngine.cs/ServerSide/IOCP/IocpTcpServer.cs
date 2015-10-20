@@ -83,6 +83,11 @@ namespace EpServerEngine.cs
         private INetworkServerCallback m_callBackObj=null;
 
         /// <summary>
+        /// callback object
+        /// </summary>
+        private INetworkServerAcceptor m_acceptor = null;
+
+        /// <summary>
         /// room callback object
         /// </summary>
         private IRoomCallback m_roomCallBackObj = null;
@@ -150,7 +155,7 @@ namespace EpServerEngine.cs
         /// <summary>
         ///  OnAccept event
         /// </summary>
-        public OnServerAcceptedDelegate OnAccepted
+        public OnServerAcceptedDelegate OnServerAccepted
         {
             get
             {
@@ -161,10 +166,12 @@ namespace EpServerEngine.cs
                 if (value == null)
                 {
                     m_onAccepted = delegate { };
+                    if (CallBackObj != null)
+                        m_onAccepted += CallBackObj.OnServerAccepted;
                 }
                 else
                 {
-                    m_onAccepted = value;
+                    m_onAccepted = CallBackObj != null && CallBackObj.OnServerAccepted != value ? CallBackObj.OnServerAccepted + (value - CallBackObj.OnServerAccepted) : value;
                 }
             }
         }
@@ -240,6 +247,26 @@ namespace EpServerEngine.cs
             }
         }
 
+        public INetworkServerAcceptor Acceptor
+        {
+            get
+            {
+                lock (m_generalLock)
+                {
+                    return m_acceptor;
+                }
+            }
+            set
+            {
+                lock (m_generalLock)
+                {
+                    if (value == null)
+                        throw new NullReferenceException("Acceptor cannot be null!");
+                    m_acceptor = value;
+                }
+
+            }
+        }
         /// <summary>
         /// callback object
         /// </summary>
@@ -373,7 +400,7 @@ namespace EpServerEngine.cs
                         status = StartStatus.FAIL_ALREADY_STARTED;
                         throw new CallbackException();
                     }
-
+                    Acceptor = m_serverOps.Acceptor;
                     CallBackObj = m_serverOps.CallBackObj;
                     RoomCallBackObj = m_serverOps.RoomCallBackObj;
                     NoDelay = m_serverOps.NoDelay;
@@ -471,20 +498,21 @@ namespace EpServerEngine.cs
                     socket.Disconnect();
                     return;
                 }
-                INetworkSocketCallback socketCallbackObj = server.CallBackObj.OnAccept(server, socket.IPInfo);
-                if (socketCallbackObj == null)
+                
+                if (server.Acceptor.OnAccept(server, socket.IPInfo))
                 {
                     socket.Disconnect();
                 }
                 else
                 {
+                    INetworkSocketCallback socketCallbackObj = server.Acceptor.GetSocketCallback();
                     socket.CallBackObj=socketCallbackObj;
                     socket.Start();
                     lock (server.m_listLock)
                     {
                         server.m_socketList.Add(socket);
                     }
-                    server.OnAccepted(server, socket);
+                    server.OnServerAccepted(server, socket);
                 }
             }
            
@@ -499,8 +527,8 @@ namespace EpServerEngine.cs
         {
             if (ops == null)
                 ops = ServerOps.defaultServerOps;
-            if (ops.CallBackObj == null)
-                throw new NullReferenceException("callBackObj is null!");
+            if (ops.Acceptor == null)
+                throw new NullReferenceException("acceptor cannot be null!");
             lock (m_generalLock)
             {
                 m_serverOps = ops;
