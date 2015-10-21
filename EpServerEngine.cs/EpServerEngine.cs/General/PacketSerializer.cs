@@ -188,60 +188,66 @@ namespace EpServerEngine.cs
 
 
         /// <summary>
-        /// Get packet class object
-        /// </summary>
-        /// <returns>packet class object</returns>
-        public PacketStruct GetPacket()
-        {
-            m_stream.Seek(0, SeekOrigin.Begin);
-            PacketStruct retPacket=null;
-            switch (Mode)
-            {
-                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
-                case SerializerMode.DEFAULT:
-                    retPacket = (PacketStruct)m_formatter.Deserialize(m_stream);
-                    break;
-                case SerializerMode.SILVERLIGHT_SERIALIZER:
-                    retPacket = (PacketStruct)SilverlightSerializer.Deserialize(m_stream);
-                    break;
-            }
-            return retPacket;
-        }
-
-        /// <summary>
         /// Get serialized packet
         /// </summary>
         /// <returns>serialized packet</returns>
-        public byte[] GetPacketRaw()
+        public byte[] PacketRaw
         {
-            //return m_stream.ToArray();
-            return m_stream.GetBuffer();
-
+            get
+            {
+                //return m_stream.ToArray();
+                return m_stream.GetBuffer();
+            }
         }
         /// <summary>
         /// Return size of packet in byte
         /// </summary>
         /// <returns>size of packet in byte</returns>
-        public long GetPacketByteSize()
+        public long PacketByteSize
         {
-            return m_stream.Length;   
+            get
+            {
+                return m_stream.Length;
+            }
+        }
+
+        
+        /// <summary>
+        /// Clone and return packet class object
+        /// </summary>
+        /// <returns>cloned packet class object</returns>
+        public PacketStruct ClonePacketObj()
+        {
+            PacketStruct retPacketObj=null;
+            m_stream.Seek(0, SeekOrigin.Begin);
+            switch (Mode)
+            {
+                case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
+                case SerializerMode.DEFAULT:
+                    retPacketObj = (PacketStruct)m_formatter.Deserialize(m_stream);
+                    break;
+                case SerializerMode.SILVERLIGHT_SERIALIZER:
+                    retPacketObj = (PacketStruct)SilverlightSerializer.Deserialize(m_stream);
+                    break;
+            }
+            return retPacketObj;
         }
 
         /// <summary>
-        /// Set packet class object
+        /// Set serialize packet
         /// </summary>
-        /// <param name="packet">packet class object</param>
-        public void SetPacket(PacketStruct packet)
+        /// <param name="obj">serialize class object</param>
+        public void SetPacket(PacketStruct obj)
         {
             m_stream = new MemoryStream();
             switch (Mode)
             {
                 case SerializerMode.DEFAULT:
                 case SerializerMode.ALLOW_ALL_ASSEMBLY_VERSION_DESERIALIZATION:
-                    m_formatter.Serialize(m_stream, packet);
+                    m_formatter.Serialize(m_stream, obj);
                     break;
                 case SerializerMode.SILVERLIGHT_SERIALIZER:
-                    SilverlightSerializer.Serialize(packet, m_stream);
+                    SilverlightSerializer.Serialize(obj, m_stream);
                     break;
             }
         }
@@ -265,7 +271,6 @@ namespace EpServerEngine.cs
         public void SetPacket(byte[] rawData, int offset,int count)
         {
             m_stream = new MemoryStream(rawData, offset, count);
-
         }
 
     }
