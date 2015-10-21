@@ -902,7 +902,7 @@ namespace EpServerEngine.cs
             {
                 if (m_roomMap.ContainsKey(roomName))
                 {
-                    m_roomMap[roomName].Broadcast(packet);
+                    m_roomMap[roomName].Broadcast(this, packet);
                 }
             }
         }
@@ -920,7 +920,7 @@ namespace EpServerEngine.cs
             {
                 if (m_roomMap.ContainsKey(roomName))
                 {
-                    m_roomMap[roomName].Broadcast(data, offset, dataSize);
+                    m_roomMap[roomName].Broadcast(this, data, offset, dataSize);
                 }
             }
         }
@@ -936,7 +936,7 @@ namespace EpServerEngine.cs
             {
                 if (m_roomMap.ContainsKey(roomName))
                 {
-                    m_roomMap[roomName].Broadcast(data);
+                    m_roomMap[roomName].Broadcast(this, data);
                 }
             }
         }

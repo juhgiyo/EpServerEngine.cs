@@ -134,7 +134,7 @@ namespace EpServerEngine.cs
         public delegate void OnRoomCreatedDelegate(IRoom room);
         public delegate void OnRoomJoinDelegate(IRoom room, INetworkSocket socket);
         public delegate void OnRoomLeaveDelegate(IRoom room, INetworkSocket socket);
-        public delegate void OnRoomBroadcastDelegate(IRoom room, Packet packet);
+        public delegate void OnRoomBroadcastDelegate(IRoom room, INetworkSocket sender, Packet packet);
         public delegate void OnRoomDestroyDelegate(IRoom room);
 
     public interface IRoomCallback
@@ -163,8 +163,9 @@ namespace EpServerEngine.cs
         /// Broadcast callback
         /// </summary>
         /// <param name="room">room</param>
+        /// <param name="sender">sender of this packet</param>
         /// <param name="packet">broadcasted packet</param>
-        void OnBroadcast(IRoom room, Packet packet);
+        void OnBroadcast(IRoom room, INetworkSocket sender, Packet packet);
 
 
         /// <summary>

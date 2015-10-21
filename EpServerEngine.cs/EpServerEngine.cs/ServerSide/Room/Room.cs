@@ -342,21 +342,54 @@ namespace EpServerEngine.cs
         /// <summary>
         /// Broadcast the given packet to all the client, connected
         /// </summary>
+        /// <param name="sender">sender of the broadcast</param>
         /// <param name="packet">packet to broadcast</param>
-        public void Broadcast(Packet packet)
+        public void Broadcast(INetworkSocket sender, Packet packet)
         {
             List<INetworkSocket> list = GetSocketList();
             foreach (INetworkSocket socket in list)
             {
-                socket.Send(packet);
+                if(socket!=sender)
+                    socket.Send(packet);
             }
-            
+
             Task t = new Task(delegate()
             {
-                OnBroadcast(this,packet);
+                OnBroadcast(this,sender, packet);
             });
             t.Start();
-            
+
+        }
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="sender">sender of the broadcast</param>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Broadcast(INetworkSocket sender, byte[] data, int offset, int dataSize)
+        {
+            Broadcast(sender, new Packet(data, offset, dataSize, false));
+        }
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="sender">sender of the broadcast</param>
+        /// <param name="data">data in byte array</param>
+        public void Broadcast(INetworkSocket sender, byte[] data)
+        {
+            Broadcast(sender, new Packet(data, 0, data.Count(), false));
+        }
+
+        /// <summary>
+        /// Broadcast the given packet to all the client, connected
+        /// </summary>
+        /// <param name="packet">packet to broadcast</param>
+        public void Broadcast(Packet packet)
+        {
+            Broadcast(null, packet);
         }
 
         /// <summary>
@@ -367,7 +400,7 @@ namespace EpServerEngine.cs
         /// <param name="dataSize">data size in bytes</param>
         public void Broadcast(byte[] data, int offset, int dataSize)
         {
-            Broadcast(new Packet(data, offset, dataSize,false));
+            Broadcast(null, new Packet(data, offset, dataSize, false));
         }
 
         /// <summary>
@@ -376,7 +409,7 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         public void Broadcast(byte[] data)
         {
-            Broadcast(new Packet(data,0,data.Count(),false));
+            Broadcast(null, new Packet(data,0,data.Count(),false));
         }
 
   
