@@ -589,14 +589,55 @@ namespace EpServerEngine.cs
         /// Broadcast the given packet to the all client, connected
         /// </summary>
         /// <param name="packet">the packet to broadcast</param>
-        public void Broadcast(Packet packet)
+        public void Broadcast(INetworkSocket sender, Packet packet)
         {
             List<IocpTcpSocket> socketList = GetClientSocketList();
 
             foreach (IocpTcpSocket socket in socketList)
             {
-                socket.Send(packet);
+                if(socket!=sender)
+                    socket.Send(packet);
             }
+        }
+        /// <summary>
+        /// Broadcast given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        /// <param name="offset">offset in bytes</param>
+        /// <param name="dataSize">data size in bytes</param>
+        public void Broadcast(INetworkSocket sender, byte[] data, int offset, int dataSize)
+        {
+            List<IocpTcpSocket> socketList = GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                if (socket != sender)
+                    socket.Send(data, offset, dataSize);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast given data to the server
+        /// </summary>
+        /// <param name="data">data in byte array</param>
+        public void Broadcast(INetworkSocket sender, byte[] data)
+        {
+            List<IocpTcpSocket> socketList = GetClientSocketList();
+
+            foreach (IocpTcpSocket socket in socketList)
+            {
+                if (socket != sender)
+                    socket.Send(data);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast the given packet to the all client, connected
+        /// </summary>
+        /// <param name="packet">the packet to broadcast</param>
+        public void Broadcast(Packet packet)
+        {
+            Broadcast(null, packet);
         }
         /// <summary>
         /// Broadcast given data to the server
@@ -606,12 +647,7 @@ namespace EpServerEngine.cs
         /// <param name="dataSize">data size in bytes</param>
         public void Broadcast(byte[] data, int offset, int dataSize)
         {
-            List<IocpTcpSocket> socketList = GetClientSocketList();
-
-            foreach (IocpTcpSocket socket in socketList)
-            {
-                socket.Send(data, offset, dataSize);
-            }
+            Broadcast(null, data, offset, dataSize);
         }
 
         /// <summary>
@@ -620,12 +656,7 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         public void Broadcast(byte[] data)
         {
-            List<IocpTcpSocket> socketList = GetClientSocketList();
-
-            foreach (IocpTcpSocket socket in socketList)
-            {
-                socket.Send(data);
-            }
+            Broadcast(null, data);
         }
 
         /// <summary>
@@ -748,7 +779,7 @@ namespace EpServerEngine.cs
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="packet">packet to broadcast</param>
-        public void Broadcast(string roomName, Packet packet)
+        public void BroadcastToRoom(string roomName, Packet packet)
         {
             lock (m_roomLock)
             {
@@ -766,7 +797,7 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         /// <param name="offset">offset in bytes</param>
         /// <param name="dataSize">data size in bytes</param>
-        public void Broadcast(string roomName, byte[] data, int offset, int dataSize)
+        public void BroadcastToRoom(string roomName, byte[] data, int offset, int dataSize)
         {
             lock (m_roomLock)
             {
@@ -782,7 +813,7 @@ namespace EpServerEngine.cs
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="data">data in byte array</param>
-        public void Broadcast(string roomName, byte[] data)
+        public void BroadcastToRoom(string roomName, byte[] data)
         {
             lock (m_roomLock)
             {

@@ -259,7 +259,7 @@ namespace EpServerEngine.cs
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="packet">packet to broadcast</param>
-        void Broadcast(string roomName, Packet packet);
+        void BroadcastToRoom(string roomName, Packet packet);
 
 
         /// <summary>
@@ -268,14 +268,14 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         /// <param name="offset">offset in bytes</param>
         /// <param name="dataSize">data size in bytes</param>
-        void Broadcast(string roomName, byte[] data, int offset, int dataSize);
+        void BroadcastToRoom(string roomName, byte[] data, int offset, int dataSize);
 
 
         /// <summary>
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="data">data in byte array</param>
-        void Broadcast(string roomName, byte[] data);
+        void BroadcastToRoom(string roomName, byte[] data);
 
         /// <summary>
         /// OnServerStarted event
@@ -503,7 +503,7 @@ namespace EpServerEngine.cs
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="packet">packet to broadcast</param>
-        void Broadcast(string roomName, Packet packet);
+        void BroadcastToRoom(string roomName, Packet packet);
 
 
         /// <summary>
@@ -512,14 +512,14 @@ namespace EpServerEngine.cs
         /// <param name="data">data in byte array</param>
         /// <param name="offset">offset in bytes</param>
         /// <param name="dataSize">data size in bytes</param>
-        void Broadcast(string roomName, byte[] data, int offset, int dataSize);
+        void BroadcastToRoom(string roomName, byte[] data, int offset, int dataSize);
 
 
         /// <summary>
         /// Broadcast the given packet to all the client, connected
         /// </summary>
         /// <param name="data">data in byte array</param>
-        void Broadcast(string roomName, byte[] data);
+        void BroadcastToRoom(string roomName, byte[] data);
     }
 
 
