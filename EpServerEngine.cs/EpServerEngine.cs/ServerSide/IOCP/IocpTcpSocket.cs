@@ -629,7 +629,10 @@ namespace EpServerEngine.cs
             Socket socket = transport.m_iocpTcpClient.m_client.Client;
             
             int readSize=0;
-            try { readSize = socket.EndReceive(result); }
+            try { 
+                if(socket!=null)
+                    readSize = socket.EndReceive(result); 
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace); 

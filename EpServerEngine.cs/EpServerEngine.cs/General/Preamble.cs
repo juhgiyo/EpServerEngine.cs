@@ -82,14 +82,12 @@ namespace EpServerEngine.cs
         /// <returns>positive number if preamble is correct and positive number of shouldReceive is found otherwise -1 </returns>
         public static int ToShouldReceive(byte[] preamblePacket)
         {
-            using (MemoryStream stream = new MemoryStream(preamblePacket))
-            {
-                ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
-                int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
-                if (preamble != curPreamble || shouldReceive < 0)
-                    return -1;
-                return shouldReceive;
-            }
+            ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
+            int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
+            if (preamble != curPreamble || shouldReceive < 0)
+                return -1;
+            return shouldReceive;
+         
         }
 
         /// <summary>

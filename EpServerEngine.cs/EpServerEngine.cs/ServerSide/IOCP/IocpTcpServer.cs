@@ -454,7 +454,11 @@ namespace EpServerEngine.cs
         {
             IocpTcpServer server = result.AsyncState as IocpTcpServer;
             TcpClient client=null;
-            try { client = server.m_listener.EndAcceptTcpClient(result); }
+            try 
+            {
+                if(server.m_listener!=null)
+                    client = server.m_listener.EndAcceptTcpClient(result); 
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -474,7 +478,11 @@ namespace EpServerEngine.cs
                 }
             }
             
-            try { server.m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), server); }
+            try 
+            {
+                if (server.m_listener != null)
+                    server.m_listener.BeginAcceptTcpClient(new AsyncCallback(IocpTcpServer.onAccept), server); 
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace); 
