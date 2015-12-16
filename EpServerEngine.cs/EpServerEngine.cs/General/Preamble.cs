@@ -68,10 +68,12 @@ namespace EpServerEngine.cs
             if (shouldReceive < 0)
                 return null;
             byte[] byteArr = new byte[Preamble.SIZE_PACKET_LENGTH];
-            MemoryStream stream = new MemoryStream(byteArr);
-            stream.Write(BitConverter.GetBytes(preamble),0,8);
-            stream.Write(BitConverter.GetBytes(shouldReceive),0,4);
-            return byteArr;
+            using (MemoryStream stream = new MemoryStream(byteArr))
+            {
+                stream.Write(BitConverter.GetBytes(preamble), 0, 8);
+                stream.Write(BitConverter.GetBytes(shouldReceive), 0, 4);
+                return byteArr;
+            }
         }
         /// <summary>
         /// Returns positive shouldReceive size from preamble packet
@@ -80,12 +82,14 @@ namespace EpServerEngine.cs
         /// <returns>positive number if preamble is correct and positive number of shouldReceive is found otherwise -1 </returns>
         public static int ToShouldReceive(byte[] preamblePacket)
         {
-            MemoryStream stream = new MemoryStream(preamblePacket);
-            ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
-            int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
-            if (preamble != curPreamble || shouldReceive < 0)
-                return -1;
-            return shouldReceive;
+            using (MemoryStream stream = new MemoryStream(preamblePacket))
+            {
+                ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
+                int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
+                if (preamble != curPreamble || shouldReceive < 0)
+                    return -1;
+                return shouldReceive;
+            }
         }
 
         /// <summary>
