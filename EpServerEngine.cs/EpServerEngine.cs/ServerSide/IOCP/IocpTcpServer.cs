@@ -456,8 +456,10 @@ namespace EpServerEngine.cs
             TcpClient client=null;
             try 
             {
-                if(server.m_listener!=null)
-                    client = server.m_listener.EndAcceptTcpClient(result); 
+                if (server.m_listener != null)
+                {
+                    client = server.m_listener.EndAcceptTcpClient(result);
+                }
             }
             catch (Exception ex)
             {
