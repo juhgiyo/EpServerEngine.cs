@@ -365,6 +365,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// Callback Exception class
         /// </summary>
+        [Serializable]
         private class CallbackException : Exception
         {
             /// <summary>

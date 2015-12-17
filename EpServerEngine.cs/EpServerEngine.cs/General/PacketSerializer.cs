@@ -61,7 +61,7 @@ namespace EpServerEngine.cs
     /// Packet Serializer
     /// </summary>
     /// <typeparam name="PacketStruct">packet class type</typeparam>
-    public sealed class PacketSerializer<PacketStruct> where PacketStruct : class,ISerializable
+    public sealed class PacketSerializer<PacketStruct>: IDisposable where PacketStruct : class,ISerializable
     {
         sealed class AllowAllAssemblyVersionDeserializationBinder : SerializationBinder
         {
@@ -271,6 +271,36 @@ namespace EpServerEngine.cs
         public void SetPacket(byte[] rawData, int offset,int count)
         {
             m_stream = new MemoryStream(rawData, offset, count);
+        }
+
+        bool m_disposed = false;
+
+        public void Dispose()
+        {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        private void Dispose(bool disposing)
+        {
+            if (m_disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                if (m_stream != null)
+                {
+                    m_stream.Dispose();
+                    m_stream = null;
+                }
+            }
+
+            // Free any unmanaged objects here.
+            m_disposed = true;
         }
 
     }

@@ -53,7 +53,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// IOCP TCP Socket class
     /// </summary>
-    public sealed class IocpTcpSocket:ThreadEx,INetworkSocket
+    public sealed class IocpTcpSocket:ThreadEx,INetworkSocket, IDisposable
     {
         /// <summary>
         /// actual client
@@ -924,6 +924,36 @@ namespace EpServerEngine.cs
                     m_roomMap[roomName].Broadcast(this, data);
                 }
             }
+        }
+
+        bool m_disposed = false;
+
+        public void Dispose()
+        {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        private void Dispose(bool disposing)
+        {
+            if (m_disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                if (m_sendEvent != null)
+                {
+                    m_sendEvent.Dispose();
+                    m_sendEvent = null;
+                }
+            }
+
+            // Free any unmanaged objects here.
+            m_disposed = true;
         }
 
     }

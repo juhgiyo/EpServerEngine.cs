@@ -55,7 +55,7 @@ namespace EpServerEngine.cs
     /// <summary>
     /// A IOCP TCP Client class.
     /// </summary>
-    public sealed class IocpTcpClient : ThreadEx, INetworkClient
+    public sealed class IocpTcpClient : ThreadEx, INetworkClient, IDisposable
     {
         /// <summary>
         /// Actual TCP client
@@ -383,6 +383,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// Callback Exception class
         /// </summary>
+        [Serializable]
         private class CallbackException : Exception
         {
             /// <summary>
@@ -922,6 +923,46 @@ namespace EpServerEngine.cs
                 }
             }
 
+        }
+
+        bool m_disposed = false;
+
+        public void Dispose()
+        {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        private void Dispose(bool disposing)
+        {
+            if (m_disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                if (m_client != null)
+                {
+                    m_client.Close();
+                    m_client = null;
+                }
+                if (m_timeOutEvent != null)
+                {
+                    m_timeOutEvent.Dispose();
+                    m_timeOutEvent = null;
+                }
+                if (m_sendEvent != null)
+                {
+                    m_sendEvent.Dispose();
+                    m_sendEvent = null;
+                }
+            }
+
+            // Free any unmanaged objects here.
+            m_disposed = true;
         }
 
     }
