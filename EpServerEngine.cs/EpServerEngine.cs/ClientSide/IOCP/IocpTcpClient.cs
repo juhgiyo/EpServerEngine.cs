@@ -255,8 +255,7 @@ namespace EpServerEngine.cs
         }
         ~IocpTcpClient()
         {
-            if (IsConnectionAlive)
-                Disconnect();
+            Dispose(false);
         }
 
         /// <summary>
@@ -940,6 +939,9 @@ namespace EpServerEngine.cs
         {
             if (m_disposed)
                 return;
+
+            if (IsConnectionAlive)
+                Disconnect();
 
             if (disposing)
             {

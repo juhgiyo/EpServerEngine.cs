@@ -303,5 +303,6 @@ namespace EpServerEngine.cs
             m_disposed = true;
         }
 
+        ~PacketSerializer() { Dispose(false); }
     }
 }
