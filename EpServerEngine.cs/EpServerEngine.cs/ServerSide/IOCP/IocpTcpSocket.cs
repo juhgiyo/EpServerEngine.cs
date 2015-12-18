@@ -925,7 +925,14 @@ namespace EpServerEngine.cs
             }
         }
 
-        bool m_disposed = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///  <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>Default initialization for a bool is 'false'</remarks>
+        private bool IsDisposed { get; set; }
 
         public void Dispose()
         {
@@ -936,26 +943,31 @@ namespace EpServerEngine.cs
         }
 
         // Protected implementation of Dispose pattern.
-        private void Dispose(bool disposing)
+        private void Dispose(bool isDisposing)
         {
-            if (m_disposed)
-                return;
-            
-            if (IsConnectionAlive)
-                Disconnect();
-
-            if (disposing)
+            try
             {
-                // Free any other managed objects here.
-                if (m_sendEvent != null)
+                if (!this.IsDisposed)
                 {
-                    m_sendEvent.Dispose();
-                    m_sendEvent = null;
+                    if (IsConnectionAlive)
+                        Disconnect();
+                    if (isDisposing)
+                    {
+                        // Free any other managed objects here.
+                        if (m_sendEvent != null)
+                        {
+                            m_sendEvent.Dispose();
+                            m_sendEvent = null;
+                        }
+                    }
+
+                    // Free any unmanaged objects here.
                 }
             }
-
-            // Free any unmanaged objects here.
-            m_disposed = true;
+            finally
+            {
+                this.IsDisposed = true;
+            }
         }
 
     }
