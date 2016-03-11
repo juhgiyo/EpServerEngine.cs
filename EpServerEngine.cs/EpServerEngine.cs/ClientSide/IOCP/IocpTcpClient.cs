@@ -436,7 +436,7 @@ namespace EpServerEngine.cs
                         Port = ServerConf.DEFAULT_PORT;
                     }
 
-
+                    m_client = new TcpClient();
                     m_client.NoDelay = NoDelay;
 
                     m_client.Client.BeginConnect(HostName, Convert.ToInt32(Port), new AsyncCallback(IocpTcpClient.onConnected), this);
