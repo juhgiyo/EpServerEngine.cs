@@ -52,7 +52,7 @@ namespace EpServerEngine.cs
         /// <summary>
         /// byte size of size packet
         /// </summary>
-        public const int SIZE_PACKET_LENGTH = 12;
+        public const int SIZE_PACKET_LENGTH = 16;
         /// <summary>
         /// preamble
         /// </summary>
@@ -72,6 +72,7 @@ namespace EpServerEngine.cs
             {
                 stream.Write(BitConverter.GetBytes(preamble), 0, 8);
                 stream.Write(BitConverter.GetBytes(shouldReceive), 0, 4);
+                stream.Write(BitConverter.GetBytes(0), 0, 4);
                 return byteArr;
             }
         }
@@ -84,6 +85,7 @@ namespace EpServerEngine.cs
         {
             ulong curPreamble = BitConverter.ToUInt64(preamblePacket, 0);
             int shouldReceive = BitConverter.ToInt32(preamblePacket, 8);
+            int dummy = BitConverter.ToInt32(preamblePacket, 12);
             if (preamble != curPreamble || shouldReceive < 0)
                 return -1;
             return shouldReceive;
