@@ -1,0 +1,3 @@
+[submodule "EpLibrary.cs"]
+	path = EpLibrary.cs
+	url = git@github.com:juhgiyo/EpLibrary.cs.git
