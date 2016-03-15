@@ -78,7 +78,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs.csproj">
+    <ProjectReference Include="..\..\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs.csproj">
       <Project>{166162df-96c8-4034-ae61-e25b2380dd9a}</Project>
       <Name>EpLibrary.cs</Name>
     </ProjectReference>

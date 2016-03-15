@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpServerEngineSampleClient"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpServerEngine.cs", "..\EpServerEngine.cs\EpServerEngine.cs\EpServerEngine.cs.csproj", "{63739890-8C4A-43A9-A33E-E6172498EF0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpLibrary.cs", "..\..\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs.csproj", "{166162DF-96C8-4034-AE61-E25B2380DD9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpLibrary.cs", "..\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs\EpLibrary.cs.csproj", "{166162DF-96C8-4034-AE61-E25B2380DD9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
