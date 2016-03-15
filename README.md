@@ -12,6 +12,11 @@ It handles all the initialize/usage Socket library, which is time consuming task
 EpServerEngine.cs supports Visual C# 2012.
 Source can be downloaded at [EpServerEngine.cs](http://github.com/juhgiyo/epserverengine.cs)
 
+Nuget Package
+------------
+[Nuget Package](https://www.nuget.org/packages/EpServerEngine.cs/)
+
+
 
 FEATURES
 --------
