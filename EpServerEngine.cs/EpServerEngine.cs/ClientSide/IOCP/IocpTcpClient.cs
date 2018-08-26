@@ -576,10 +576,7 @@ namespace EpServerEngine.cs
         {
             get
             {
-                lock (m_generalLock)
-                {
-                    return m_isConnected;
-                }
+                return m_isConnected;
             }
             private set
             {
