@@ -521,7 +521,13 @@ namespace EpServerEngine.cs
         {
             IocpTcpClient tcpclient = result.AsyncState as IocpTcpClient;
      
-            try { tcpclient.m_client.Client.EndConnect(result); }
+            try 
+            {
+                if (tcpclient.m_client.Client != null)
+                {
+                    tcpclient.m_client.Client.EndConnect(result);
+                }
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);

@@ -3,3 +3,5 @@ obj/
 bin/
 *.bak
 /EpServerEngine.cs/.vs/EpServerEngine.cs
+/EpServerEngineSampleServer/.vs/EpServerEngineSampleServer/v15/Server/sqlite3
+/SL
