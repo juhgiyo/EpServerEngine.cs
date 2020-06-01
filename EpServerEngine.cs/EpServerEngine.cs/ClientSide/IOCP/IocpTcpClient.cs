@@ -416,7 +416,11 @@ namespace EpServerEngine.cs
                     if (IsConnectionAlive)
                     {
                         status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-                        throw new CallbackException();
+                        new Task(delegate ()
+                        {
+                            OnConnected(this, status);
+                        }).Start();
+                        return;
                     }
 
                     CallBackObj = m_clientOps.CallBackObj;
@@ -424,7 +428,6 @@ namespace EpServerEngine.cs
                     Port = m_clientOps.Port;
                     NoDelay = m_clientOps.NoDelay;
                     ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
-
 
                     if (HostName == null || HostName.Length == 0)
                     {
@@ -445,14 +448,17 @@ namespace EpServerEngine.cs
                         if (!m_client.Connected)
                         {
                             status = ConnectStatus.FAIL_SOCKET_ERROR;
-                            throw new CallbackException();
+                            new Task(delegate ()
+                            {
+                                OnConnected(this, status);
+                            }).Start();
+                            return;
                         }
                         IsConnectionAlive = true;
-                        Task t = new Task(delegate()
+                        new Task(delegate()
                         {
                             OnConnected(this, ConnectStatus.SUCCESS);
-                        });
-                        t.Start();
+                        }).Start();
 
 
                     }
@@ -472,18 +478,14 @@ namespace EpServerEngine.cs
                         }
                         m_client.Close();
                         status = ConnectStatus.FAIL_TIME_OUT;
-                        throw new CallbackException();
+                        Task t = new Task(delegate ()
+                        {
+                            OnConnected(this, status);
+                        });
+                        t.Start();
+                        return;
                     }
                 }
-            }
-            catch(CallbackException)
-            {
-                Task t = new Task(delegate()
-                {
-                    OnConnected(this, status);
-                });
-                t.Start();
-                return;
             }
             catch (Exception ex)
             {
