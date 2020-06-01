@@ -460,8 +460,11 @@ namespace EpServerEngine.cs
                     {
                         try
                         {
-                            m_client.Client.Shutdown(SocketShutdown.Both);
-                            //Client.Client.Disconnect(true);
+                            if (m_client.Client.Connected)
+                            {
+                                m_client.Client.Shutdown(SocketShutdown.Both);
+                                //Client.Client.Disconnect(true);
+                            }
                         }
                         catch (Exception ex)
                         {
