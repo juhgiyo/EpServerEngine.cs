@@ -416,7 +416,11 @@ namespace EpServerEngine.cs
                     if (IsConnectionAlive)
                     {
                         status = ConnectStatus.FAIL_ALREADY_CONNECTED;
-                        throw new CallbackException();
+                        new Task(delegate ()
+                        {
+                            OnConnected(this, status);
+                        }).Start();
+                        return;
                     }
 
                     CallBackObj = m_clientOps.CallBackObj;
@@ -424,7 +428,6 @@ namespace EpServerEngine.cs
                     Port = m_clientOps.Port;
                     NoDelay = m_clientOps.NoDelay;
                     ConnectionTimeOut = m_clientOps.ConnectionTimeOut;
-
 
                     if (HostName == null || HostName.Length == 0)
                     {
@@ -445,14 +448,17 @@ namespace EpServerEngine.cs
                         if (!m_client.Connected)
                         {
                             status = ConnectStatus.FAIL_SOCKET_ERROR;
-                            throw new CallbackException();
+                            new Task(delegate ()
+                            {
+                                OnConnected(this, status);
+                            }).Start();
+                            return;
                         }
                         IsConnectionAlive = true;
-                        Task t = new Task(delegate()
+                        new Task(delegate()
                         {
                             OnConnected(this, ConnectStatus.SUCCESS);
-                        });
-                        t.Start();
+                        }).Start();
 
 
                     }
@@ -460,8 +466,11 @@ namespace EpServerEngine.cs
                     {
                         try
                         {
-                            m_client.Client.Shutdown(SocketShutdown.Both);
-                            //Client.Client.Disconnect(true);
+                            if (m_client.Client.Connected)
+                            {
+                                m_client.Client.Shutdown(SocketShutdown.Both);
+                                //Client.Client.Disconnect(true);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -469,18 +478,14 @@ namespace EpServerEngine.cs
                         }
                         m_client.Close();
                         status = ConnectStatus.FAIL_TIME_OUT;
-                        throw new CallbackException();
+                        Task t = new Task(delegate ()
+                        {
+                            OnConnected(this, status);
+                        });
+                        t.Start();
+                        return;
                     }
                 }
-            }
-            catch(CallbackException)
-            {
-                Task t = new Task(delegate()
-                {
-                    OnConnected(this, status);
-                });
-                t.Start();
-                return;
             }
             catch (Exception ex)
             {
@@ -521,7 +526,13 @@ namespace EpServerEngine.cs
         {
             IocpTcpClient tcpclient = result.AsyncState as IocpTcpClient;
      
-            try { tcpclient.m_client.Client.EndConnect(result); }
+            try 
+            {
+                if (tcpclient.m_client.Client != null)
+                {
+                    tcpclient.m_client.Client.EndConnect(result);
+                }
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " >" + ex.StackTrace);
@@ -576,10 +587,7 @@ namespace EpServerEngine.cs
         {
             get
             {
-                lock (m_generalLock)
-                {
-                    return m_isConnected;
-                }
+                return m_isConnected;
             }
             private set
             {
